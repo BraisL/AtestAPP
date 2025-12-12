@@ -1,0 +1,373 @@
+/* =========================================================
+    ATESTAPP — STYLE.CSS
+    Estructura:
+    1) Variables / base
+    2) Layout global
+    3) Shell (header + nav + iframe)
+    4) Header
+    5) Navbar + dropdown
+    6) Main / páginas
+    7) Componentes: inicio (botones rápidos)
+    8) Componentes: unidad (formularios/avisos)
+    9) Utilidades
+   ========================================================= */
+
+/* =======================
+    1) VARIABLES / BASE
+   ======================= */
+:root {
+    --dark-green: #002b20;
+    --light-green: #006449;
+    --yellow: #f1b800;
+    --white: #ffffff;
+    --red: #b00020;
+    --dark-red: #7a0015;
+}
+
+html, body { height: 100%; }
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--white);
+    color: var(--dark-green);
+}
+
+/* =======================
+    2) LAYOUT GLOBAL (DESKTOP)
+   ======================= */
+@media screen {
+    body{
+        min-width: 1600px;
+        min-height: 900px;
+        overflow-x: auto;
+    }
+}
+
+@media print {
+    body{
+        min-width: 0 !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+    }
+}
+
+/* =======================
+    3) SHELL (HEADER + NAV + IFRAME)
+   ======================= */
+body.shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+body.shell nav {
+    position: relative;
+    z-index: 2000; /* dropdown por encima del iframe */
+}
+
+body.shell header {
+    position: relative;
+    z-index: 3000;
+}
+
+#marco-contenido {
+    flex: 1;
+    width: 100%;
+    border: 0;
+    position: relative;
+    z-index: 0;
+}
+
+/* =======================
+    4) HEADER
+   ======================= */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1vw;
+    background-color: var(--dark-green);
+    color: var(--white);
+    height: 5vh;
+}
+
+.header-left { flex: 1; }
+
+.header-center {
+    flex: 1;
+    text-align: center;
+    font-size: 2.5vw;
+    font-weight: bold;
+    color: var(--white) !important;
+}
+
+.header-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.unit-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    max-width: 30vw;
+    min-width: 9.5vw;
+    margin-right: 1vw;
+}
+
+.separator {
+    height: 3vw;
+    width: 0.15vw;
+    background-color: var(--yellow);
+    margin: 0 0.5vw;
+}
+
+.header-icons {
+    display: flex;
+    align-items: center;
+}
+
+.header-icons a {
+    color: var(--white);
+    font-size: 1.5vw;
+    margin-left: 0.75vw;
+    margin-right: 0.75vw;
+}
+
+/* =======================
+    5) NAVBAR + DROPDOWN
+   ======================= */
+nav {
+    background-color: var(--light-green);
+    background-image: url(../assets/detalle-menu.png);
+    background-size: 20.5vw;
+    background-repeat: no-repeat;
+    background-position-x: 76vw;
+    max-height: 4vh;
+    overflow: visible;   
+
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0 0 0 9vw;
+    padding: 0;
+    overflow: visible;
+}
+
+nav ul li { float: left; }
+
+nav ul li a,
+.dropbtn {
+    display: inline-block;
+    color: var(--white);
+    text-align: center;
+    padding: 0 1vw;       /* quitas padding vertical */
+    margin-left: 0vw;
+    line-height: 4vh;     /* centra verticalmente y encaja */
+    text-decoration: none;
+}
+
+nav ul li a:hover,
+.dropdown:hover .dropbtn {
+    background-color: var(--yellow);
+    color: var(--dark-green);
+}
+
+/* Botones “dropbtn” con bordes y ancho */
+a.dropbtn-atestados {
+    border-right: 0.15vw solid var(--white);
+    border-left: 0.15vw solid var(--white);
+    min-width: 10vw;
+    max-width: 10vw;
+}
+
+a.dropbtn-diligencias,
+a.dropbtn-otros,
+a.dropbtn-info {
+    border-right: 0.15vw solid var(--white);
+    min-width: 10vw;
+    max-width: 10vw;
+}
+
+/* Dropdown */
+.dropdown{
+  position: relative;   /* ancla el absolute dentro */
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: var(--light-green);
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    left: 0;
+    right: 0;             /* => width = ancho del padre (.dropdown) */
+    min-width: 0; 
+}
+
+.dropdown-content a {
+    color: var(--white);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 16px;      /* si quieres que encaje en el alto del nav, quita padding vertical */
+    line-height: 4vh;     /* opcional: misma altura “barra” */
+    white-space: nowrap;
+}
+
+.dropdown-content a:hover {
+    background-color: var(--yellow);
+    color: var(--dark-green);
+}
+
+.dropdown:hover .dropdown-content { display: block; }
+
+/* =======================
+    6) MAIN / PÁGINAS
+   ======================= */
+main { padding: 0vw; }
+
+body.page main { padding: 0vw; }
+
+/* =======================
+    7) COMPONENTES — INICIO (BOTONES RÁPIDOS)
+   ======================= */
+.quick-access h2 {
+    text-align: center;
+    color: var(--dark-green);
+}
+
+.quick-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.quick-buttons button {
+    background-color: var(--dark-green);
+    color: var(--white);
+    border: none;
+    padding: 15px 30px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.quick-buttons button:hover {
+    background-color: var(--yellow);
+    color: var(--dark-green);
+}
+
+/* =======================
+    8) COMPONENTES — UNIDAD
+   ======================= */
+.unit-data-management {
+    max-width: 80vw;
+    margin: 0 auto;
+    padding: 0vw;
+}
+
+.unit-data-actions {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+.action-box {
+    flex: 1;
+    padding: 20px;
+    border: 1px solid var(--dark-green);
+    text-align: center;
+}
+
+#unit-data-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label { margin-bottom: 0; }
+
+.form-group input,
+.form-group .radio-group {
+    padding: 0.5vw;
+    border: 0.15vw solid #ccc;
+    max-width: 20vw;
+}
+
+.form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.form-actions button {
+    background-color: var(--dark-green);
+    color: var(--white);
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.warnings {
+    margin-top: 30px;
+    background-color: #f0f0f0;
+    padding: 15px;
+    border-left: 5px solid var(--yellow);
+}
+
+/* Botones del formulario (Guardar/Descargar/Borrar) */
+#save-btn,
+#download-btn,
+#delete-btn {
+    transition: background-color 0.2s ease, color 0.2s ease, filter 0.2s ease;
+}
+
+#save-btn,
+#download-btn {
+    background-color: var(--dark-green);
+    color: var(--white);
+}
+
+#save-btn:hover,
+#download-btn:hover {
+    background-color: var(--yellow);
+    color: var(--dark-green);
+}
+
+#delete-btn {
+    background-color: var(--dark-red);
+    color: var(--white);
+}
+
+#delete-btn:hover {
+    background-color: var(--red);
+    color: var(--white);
+}
+
+/* =======================
+    9) UTILIDADES
+   ======================= */
+.hidden { display: none; }
+
+i.fa-solid.fa-cloud-arrow-down {
+    color: var(--yellow);
+    margin-left: 0.25vw;
+}

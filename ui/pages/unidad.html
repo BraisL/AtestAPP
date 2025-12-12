@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AtestAPP - Unidad</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="page">
+  <main>
+    <section class="unit-data-management">
+
+      <h2>Modificar datos de la Unidad</h2>
+
+      <p style="margin: 8px 0 10px 0; line-height: 1.4;">
+        Antes de realizar ninguna diligencia carga o rellena los datos relativos a tu Unidad. Si necesitas hacer alguna diligencia suelta con los datos de otra Unidad no es necesario realizar ningún cambio, puede usar la
+        <a href="./diligencialibre_sindatos.html"
+          title="Abrir Diligencia libre sin datos"
+          style="color: inherit; text-decoration: none; font-weight: 500; opacity: 0.9; border-bottom: 1px dotted rgba(0,0,0,0.25); cursor: pointer; transition: opacity .15s;"
+          onmouseenter="this.style.fontWeight='700'; this.style.opacity='1'; this.style.borderBottom='1px solid rgba(0,0,0,0.55)';"
+          onmouseleave="this.style.fontWeight='500'; this.style.opacity='0.9'; this.style.borderBottom='1px dotted rgba(0,0,0,0.25)';">
+          Diligencia libre sin datos
+        </a>.
+      </p>
+
+      <p style="margin: 10px 0 16px 0; line-height: 1.4;">
+        Si es la primera vez que accedes a la aplicación o quieres generar un nuevo archivo con los datos de la Unidad 
+        <a href="#"
+          id="open-form-link"
+          style="color: inherit; text-decoration: underline; text-decoration-style: dotted; cursor: pointer; font-weight: 600;"
+          onmouseenter="this.style.fontWeight='700'; this.style.textDecorationStyle='solid';"
+          onmouseleave="this.style.fontWeight='600'; this.style.textDecorationStyle='dotted';">
+          despliegua el formulario;
+        </a>
+        de lo contrario 
+        <a href="#"
+          id="load-json-link"
+          style="color: inherit; text-decoration: underline; text-decoration-style: dotted; cursor: pointer; font-weight: 600;"
+          onmouseenter="this.style.fontWeight='700'; this.style.textDecorationStyle='solid';"
+          onmouseleave="this.style.fontWeight='600'; this.style.textDecorationStyle='dotted';">
+          cárgalos
+        </a>.
+      </p>
+
+      <input type="file" id="upload-json" accept=".json" style="display:none;">
+
+      <form id="unit-data-form" style="display:none; margin-top: 1vw;">
+        <div style="
+          border: 0.15vw solid #ccc;
+          border-radius: 0.15vw;
+          padding: 1vw;
+          background: #fff;
+        ">
+          <h3 style="margin: 0 0 12px 0; font-size: 16px; letter-spacing: .3px;">
+            DATOS DE LA UNIDAD
+          </h3>
+          <div style="
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1vw;
+            align-items: flex-start;
+          ">
+            <div class="form-group" style="flex: 1 1; min-width: 20vw; max-width: 20vw;">
+              <label for="comandancia" style="display:block; margin-bottom:6px;">Comandancia *</label>
+              <input type="text" id="comandancia" name="comandancia" required
+                    style="width:100%; box-sizing:border-box; padding:10px; border:1px solid #ccc; border-radius:0.15vw; min-width: 20vw; max-width: 20vw;">
+            </div>
+            <div class="form-group" style="flex: 1 1; min-width: 20vw; max-width: 20vw;">
+              <label for="compania" style="display:block; margin-bottom:6px;">Compañía *</label>
+              <input type="text" id="compania" name="compania" required
+                    style="width:100%; box-sizing:border-box; padding:10px; border:1px solid #ccc; border-radius:0.15vw; min-width: 20vw; max-width: 20vw;">
+            </div>
+            <div class="form-group" style="flex: 2 1; min-width: 12.5vw; max-width: 12.5vw;">
+              <label for="tipopuesto" style="display:block; margin-bottom:6px;">Tipo de Puesto *</label>
+              <select id="tipopuesto" name="tipopuesto" required
+                      style="width:100%; box-sizing:border-box; padding:10px; border:1px solid #ccc; border-radius:0.15vw; min-width: 12.5vw; max-width: 12.5vw;">
+                <option value="" selected disabled>Seleccione una opción…</option>
+                <option value="Pto. Ppal.">Puesto Principal</option>
+                <option value="Pto.">Puesto</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex: 2 1;min-width: 20vw; max-width: 20vw;">
+              <label for="nombreunidad" style="display:block; margin-bottom:6px;">Nombre del Puesto *</label>
+              <input type="text" id="nombreunidad" name="nombreunidad" required
+                    style="width:100%; box-sizing:border-box; padding:10px; border:1px solid #ccc; border-radius:0.15vw; min-width: 20vw; max-width: 20vw;">
+            </div>
+            <div class="form-group" style="flex: 3 1; min-width: 22.5vw; max-width: 22.5vw;">
+              <label for="direccion" style="display:block; margin-bottom:6px;">Dirección *</label>
+              <input type="text" id="direccion" name="direccion" required
+                    style="width:100%; box-sizing:border-box; padding:10px; border:1px solid #ccc; border-radius:0.15vw; min-width: 22.5vw; max-width: 22.5vw;">
+            </div>
+            <div class="form-group" style="flex: 2 1; min-width: 20vw; max-width: 20vw;">
+              <label for="localidad" style="display:block; margin-bottom:6px;">Localidad *</label>
+              <input type="text" id="localidad" name="localidad" required
+                    style="width:100%; box-sizing:border-box; padding:10px; border:1px solid #ccc; border-radius:0.15vw; min-width: 20vw; max-width: 20vw;">
+            </div>
+            <div class="form-group" style="flex: 2 1; min-width: 20vw; max-width: 20vw;">
+              <label for="provincia" style="display:block; margin-bottom:6px;">Provincia *</label>
+              <input type="text" id="provincia" name="provincia" required
+                    style="width:100%; box-sizing:border-box; padding:10px; border:1px solid #ccc; border-radius:0.15vw; min-width: 20vw; max-width: 20vw;">
+            </div>
+            <div class="form-group" style="flex: 0 1; min-width: 10vw; max-width: 10vw;">
+              <label for="codigoPostal" style="display:block; margin-bottom:6px;">Código Postal</label>
+              <input type="text" id="codigoPostal" name="codigoPostal"
+                    style="width:100%; box-sizing:border-box; padding:10px; border:1px solid #ccc; border-radius:0.15vw; min-width: 10vw; max-width: 10vw;">
+            </div>
+            <div class="form-group" style="flex: 1 1; min-width: 20vw; max-width: 20vw;">
+              <label for="telefono" style="display:block; margin-bottom:6px;">Teléfono</label>
+              <input type="text" id="telefono" name="telefono"
+                    style="width:100%; box-sizing:border-box; padding:10px; border:1px solid #ccc; border-radius:0.15vw; min-width: 20vw; max-width: 20vw;">
+            </div>
+            <div class="form-group" style="flex: 2 1; min-width: 20vw; max-width: 20vw;">
+              <label for="correo" style="display:block; margin-bottom:6px;">Correo</label>
+              <input type="email" id="correo" name="correo"
+                    style="width:100%; box-sizing:border-box; padding:10px; border:1px solid #ccc; border-radius:0.15vw; min-width: 20vw; max-width: 20vw;">
+            </div>
+          </div>
+          <div class="form-actions" style="
+            margin-top: 2.5vw;
+            margin-bottom: 1vw;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2vw;
+          ">
+            <button type="submit" id="save-btn" style="border-radius: 0.15vw; border:1px solid #bbb; cursor:pointer; min-width: 7.5vw; max-width: 7.5vw;">
+              GUARDAR
+            </button>
+            <button type="button" id="delete-btn" style="border-radius: 0.15vw; border:1px solid #bbb; cursor:pointer; min-width: 7.5vw; max-width: 7.5vw;">
+              BORRAR
+            </button>
+            <button type="button" id="download-btn" style="border-radius: 0.15vw; border:1px solid #bbb; cursor:pointer; min-width: 7.5vw; max-width: 7.5vw;">
+              DESCARGAR
+            </button>
+          </div>
+          <div class="warnings" style="margin-top: 14px;">
+            <p style="margin: 10px 0;"><strong>Explicación de las acciones del formulario</strong></p>
+            <p style="margin: 6px 0;"><strong>Sobre guardar:</strong> Al pulsar “GUARDAR”, los datos del formulario se guardan en este dispositivo (almacenamiento local del navegador). Podrían perderse si se borran los datos del sitio, se limpia la caché/almacenamiento o se usa otro navegador/perfil.</p>
+            <p style="margin: 6px 0;"><strong>Sobre borrar:</strong> Al pulsar “BORRAR”, se eliminan los datos guardados en la aplicación. Tendrás que volver a rellenarlos o cargarlos para usar la mayoría de funciones.</p>
+            <p style="margin: 6px 0;"><strong>Sobre descargar:</strong> Al pulsar “DESCARGAR”, se genera un archivo .JSON con los datos para poder cargarlos de nuevo sin rellenar el formulario o para compartirlos con otros componentes de la Unidad. Crea una carpeta dentro de la aplicación localizarlo fácilmente (esto no afecta al funcionamiento de la app si el nombre es distinto de las carpetas que ya existen).</p>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <script>
+      // Desplegar formulario
+      document.getElementById('open-form-link')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        const form = document.getElementById('unit-data-form');
+        if (form) form.style.display = 'block';
+        // opcional: scroll suave al formulario
+        form?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
+      // Abrir selector de archivo
+      document.getElementById('load-json-link')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('upload-json')?.click();
+      });
+    </script>
+
+  </main>
+
+  <script src="../js/utilidades.js"></script>
+  <script src="../js/unidad.js"></script>
+  <script src="../js/iframe_autoaltura.js"></script>
+</body>
+</html>

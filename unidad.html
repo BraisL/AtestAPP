@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATESTAPP - Datos de la Unidad</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <header>
+        <div class="header-left">
+        </div>
+        <div class="header-center">
+            <strong>ATESTAPP</strong>
+        </div>
+        <div class="header-right">
+
+            <div class="header-icons">
+                <a href="index.html" class="home-icon" title="Inicio"><i class="fas fa-home"></i></a>
+                <a href="unidad.html" class="unit-icon" title="Modificar datos unidad"><i class="fas fa-building"></i></a>
+            </div>
+            <div class="separator"></div>
+            <div class="unit-info">
+                <span id="unit-name">Sin datos unidad</span>
+                <span id="datetime"><i class="fas fa-clock"></i> </span>
+            </div>
+        </div>
+    </header>
+    <nav>
+        <div class="navbar-decoration">
+            <div class="navbar-flag">
+                <span class="flag-red"></span>
+                <span class="flag-yellow"></span>
+                <span class="flag-red"></span>
+                <span class="flag-white-stripe"></span>
+            </div>
+        </div>
+        <ul>
+            <li class="dropdown">
+                <a href="javascript:void(0)" class="dropbtn">ATESTADOS</a>
+                <div class="dropdown-content">
+                    <a href="#">TIPO 1</a>
+                    <a href="#">TIPO 2</a>
+                    <a href="#">TIPO 3</a>
+                </div>
+            </li>
+            <li><a href="#">OTROS DOCUMENTOS</a></li>
+            <li><a href="#">INFORMACIÓN DE INTERÉS</a></li>
+        </ul>
+    </nav>
+    <main>
+        <section class="unit-data-management">
+            <h2>Gestión de Datos de la Unidad</h2>
+            <p>Estos datos se utilizarán para rellenar automáticamente los pies de las diligencias y otros documentos.</p>
+            <div class="image-placeholder">
+                <!-- Aquí puedes añadir una imagen de muestra -->
+            </div>
+
+            <div class="unit-data-actions">
+                <div class="action-box">
+                    <h3>CARGAR DATOS</h3>
+                    <p>Carga un archivo .json con los datos de la unidad previamente guardados.</p>
+                    <input type="file" id="upload-json" accept=".json">
+                </div>
+                <div class="action-box">
+                    <h3>RELLENAR DATOS</h3>
+                    <p>Introduce los datos de la unidad manualmente.</p>
+                    <button id="fill-data-btn">Rellenar</button>
+                </div>
+            </div>
+
+            <form id="unit-data-form" class="hidden">
+                <div class="form-group">
+                    <label for="comandancia">Comandancia *</label>
+                    <input type="text" id="comandancia" name="comandancia" required>
+                </div>
+                <div class="form-group">
+                    <label for="compania">Compañía *</label>
+                    <input type="text" id="compania" name="compania" required>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Puesto *</label>
+                    <div class="radio-group">
+                        <input type="radio" id="pto-principal" name="unitType" value="Pto. Ppal." required>
+                        <label for="pto-principal">Puesto Principal</label>
+                        <input type="radio" id="puesto" name="unitType" value="Pto." required>
+                        <label for="puesto">Puesto</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="unitName">Nombre del Puesto *</label>
+                    <input type="text" id="unitName" name="unitName" required>
+                </div>
+                <div class="form-group">
+                    <label for="direccion">Dirección *</label>
+                    <input type="text" id="direccion" name="direccion" required>
+                </div>
+                <div class="form-group">
+                    <label for="localidad">Localidad *</label>
+                    <input type="text" id="localidad" name="localidad" required>
+                </div>
+                <div class="form-group">
+                    <label for="codigoPostal">Código Postal</label>
+                    <input type="text" id="codigoPostal" name="codigoPostal">
+                </div>
+                <div class="form-group">
+                    <label for="telefono">Teléfono</label>
+                    <input type="text" id="telefono" name="telefono">
+                </div>
+                <div class="form-group">
+                    <label for="correo">Correo</label>
+                    <input type="email" id="correo" name="correo">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" id="save-btn">Guardar</button>
+                    <button type="button" id="delete-btn">Borrar</button>
+                    <button type="button" id="download-btn">Descargar</button>
+                </div>
+            </form>
+            <div class="warnings">
+                <p><strong>Aviso sobre Borrar:</strong> Al pulsar "Borrar", se limpiarán todos los datos de la unidad del formulario y de la aplicación.</p>
+                <p><strong>Aviso sobre Descargar:</strong> Para no tener que introducir los datos cada vez que uses la aplicación, puedes descargarlos como un archivo .json. Luego, puedes usar la opción "CARGAR" para restaurarlos.</p>
+            </div>
+        </section>
+    </main>
+    <script src="js/script.js"></script>
+    <script src="js/unidad.js"></script>
+</body>
+</html>

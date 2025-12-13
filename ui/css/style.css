@@ -3,7 +3,20 @@
     --light-green: #006449;
     --yellow: #f1b800;
     --white: #ffffff;
+    --red: #b00020;
+    --dark-red: #7a0015;
 }
+
+/* STYLE PÁGINA INICIAL Y NAVBAR */
+
+html, body { height: 100%; }
+
+body{
+    min-width: 1600px;   
+    min-height: 900px; 
+    overflow-x: auto;
+}
+
 
 body {
     font-family: 'Montserrat', sans-serif;
@@ -17,10 +30,10 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
+    padding: 1vw;
     background-color: var(--dark-green);
     color: var(--white);
-    height: 60px;
+    height: 5vh;
 }
 
 .header-left {
@@ -30,8 +43,9 @@ header {
 .header-center {
     flex: 1;
     text-align: center;
-    font-size: 2em;
+    font-size: 2.5vw;
     font-weight: bold;
+    color: var(--white) !important;
 }
 
 .header-right {
@@ -48,21 +62,25 @@ header {
 
 .header-icons a {
     color: var(--white);
-    font-size: 1.5em;
-    margin-left: 20px;
+    font-size: 1.75vw;
+    margin-left: 1vw;
+    margin-right: 1vw;
 }
 
 .separator {
-    height: 40px;
-    width: 2px;
+    height: 3vw;
+    width: 0.15vw;
     background-color: var(--yellow);
-    margin: 0 20px;
+    margin: 0 0.5vw;
 }
 
 .unit-info {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: flex-end;
+    max-width: 30vw;
+    min-width: 9.5vw;
+    margin-right: 1vw;
 }
 
 nav {
@@ -74,6 +92,7 @@ nav ul {
     margin: 0;
     padding: 0;
     overflow: hidden;
+    margin-left: 9vw;
 }
 
 nav ul li {
@@ -84,7 +103,8 @@ nav ul li a, .dropbtn {
     display: inline-block;
     color: var(--white);
     text-align: center;
-    padding: 14px 16px;
+    padding: 1vw;
+    margin-left: 0vw;
     text-decoration: none;
 }
 
@@ -93,25 +113,41 @@ nav ul li a:hover, .dropdown:hover .dropbtn {
     color: var(--dark-green);
 }
 
-.unit-data-management {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+a.dropbtn-atestados {
+    border-right: 0.15vw solid var(--white);
+    border-left: 0.15vw solid var(--white);
+    min-width: 10vw;
+    max-width: 10vw;
+}
+a.dropbtn-diligencias {
+    border-right: 0.15vw solid var(--white);
+    min-width: 10vw;
+    max-width: 10vw;
+}
+a.dropbtn-otros {
+    border-right: 0.15vw solid var(--white);
+    min-width: 10vw;
+    max-width: 10vw;
+}
+a.dropbtn-info {
+    border-right: 0.15vw solid var(--white);
+    min-width: 10vw;
+    max-width: 10vw;
 }
 
-.image-placeholder {
-    width: 100%;
-    height: 200px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    margin: 20px 0;
+
+/* STYLE DEL APARTADO DE UNIDAD */
+
+.unit-data-management {
+    max-width: 80vw;
+    margin: 0 auto;
+    padding: 0vw;
 }
 
 .unit-data-actions {
     display: flex;
     justify-content: space-around;
     gap: 20px;
-    margin-bottom: 30px;
 }
 
 .action-box {
@@ -133,12 +169,13 @@ nav ul li a:hover, .dropdown:hover .dropbtn {
 }
 
 .form-group label {
-    margin-bottom: 5px;
+    margin-bottom: 0;
 }
 
 .form-group input, .form-group .radio-group {
-    padding: 10px;
-    border: 1px solid #ccc;
+    padding: 0.5vw;
+    border: 0.15vw solid #ccc;
+    max-width: 20vw;
 }
 
 .form-actions {
@@ -163,45 +200,42 @@ nav ul li a:hover, .dropdown:hover .dropbtn {
     border-left: 5px solid var(--yellow);
 }
 
+/* Botones del formulario (Guardar/Descargar/Borrar) */
+#save-btn,
+#download-btn,
+#delete-btn {
+    transition: background-color 0.2s ease, color 0.2s ease, filter 0.2s ease;
+}
+
+/* Guardar y Descargar: como están (verde) */
+#save-btn,
+#download-btn {
+    background-color: var(--dark-green);
+    color: var(--white);
+}
+
+#save-btn:hover,
+#download-btn:hover {
+    background-color: var(--yellow);
+    color: var(--dark-green);
+}
+
+/* Borrar: rojo + hover rojo más oscuro */
+#delete-btn {
+    background-color: var(--dark-red);
+    color: var(--white);
+}
+
+#delete-btn:hover {
+    background-color: var(--red);
+    color: var(--white);
+}
+
+
+/*STYLE NAVBAR*/
+
 .hidden {
     display: none;
-}
-
-.navbar-decoration {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding-right: 20px;
-    z-index: -1;
-}
-
-.navbar-flag {
-    display: flex;
-    align-items: center;
-}
-
-.navbar-flag span {
-    width: 20px;
-    height: 40px;
-}
-
-.flag-red { background-color: #c60b1e; }
-.flag-yellow { background-color: #f1b800; }
-.flag-white-stripe {
-    background: repeating-linear-gradient(
-        45deg,
-        #ffffff,
-        #ffffff 10px,
-        var(--light-green) 10px,
-        var(--light-green) 20px
-    );
-    width: 100px;
-    height: 40px;
 }
 
 .dropdown {
@@ -235,9 +269,10 @@ nav ul li a:hover, .dropdown:hover .dropbtn {
 }
 
 main {
-    padding: 20px;
+    padding: 0vw;
 }
 
+/* STYLE BOTONES RAPIDOS*/
 .quick-access h2 {
     text-align: center;
     color: var(--dark-green);
@@ -265,4 +300,34 @@ main {
 .quick-buttons button:hover {
     background-color: var(--yellow);
     color: var(--dark-green);
+}
+
+/* ====== SHELL (header + nav + iframe) ====== */
+body.shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+body.shell nav {
+    position: relative;
+    z-index: 2000; /* para que el desplegable se vea por encima del iframe */
+}
+
+body.shell header {
+    position: relative;
+    z-index: 3000;
+}
+
+#contentFrame {
+    flex: 1;
+    width: 100%;
+    border: 0;
+    position: relative;
+    z-index: 0;
+}
+
+/* Si quieres margen interno por defecto en páginas internas */
+body.page main {
+    padding: 0vw;
 }

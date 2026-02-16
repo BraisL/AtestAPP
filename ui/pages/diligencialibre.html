@@ -10,9 +10,16 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <style>
+    html{ scrollbar-gutter: stable; }
+
+    body.page main {
+      padding: 0 0 1vw 0;
+    }
+
     /* Layout del formulario */
-    .dl-wrap { padding: 0vw; max-width: 80vw; margin: 0 auto; }
+    .dl-wrap { padding: 0vw; max-width: 81vw; margin: 0 auto; }
     .dl-title { margin: 0.83em 0 0.83em 0; }
+    .dl-subtitle { margin-top: 0.75vw; margin-bottom: -0.5vw; }
     .dl-help { margin: 0.2vw 0 1vw 0; line-height: 1.35; }
 
     .dl-link {
@@ -117,7 +124,7 @@
     }
 
     /* Seguridad: evita que se solape con el footer si algo excede */
-    .field-texto{ overflow: hidden; }
+    .field-texto{ overflow: hidden; text-align: justify;}
 
     .field-footer { top: 94.15%; left: 20.0%; width: 70%; height: 2%; font-size: 35%; }
     .field-texto .parrafo{
@@ -159,22 +166,36 @@
 
     .field.field-fuerza {color: transparent;}
     .field.field-tips {color: transparent;}
-    
+
     /* El texto base mantiene saltos de línea como antes */
     .field-texto .texto-base{
       white-space: pre-wrap;
     }
 
+    /* Filiaciones (título y párrafos) */
+    .field-texto .bloque-filiaciones-title{
+      margin-top: 8mm;
+      text-align: left;
+      font-weight: 600;
+    }
+    .field-texto .bloque-filiaciones{
+      margin-top: 4mm;
+      white-space: pre-wrap;
+    }
+    .field-texto .filiacion-p{
+      margin: 0 0 3mm 0;
+    }
+
     /* “La Fuerza Instructora:” centrado, con separación */
     .field-texto .bloque-fuerza{
-      margin-top: 12mm;   /* súbelo/bájalo aquí */
+      margin-top: 12mm;
       text-align: center;
       font-weight: 600;
     }
 
     /* Tips en cajas, centradas */
     .field-texto .bloque-tips{
-      margin-top: 15mm;    /* separación respecto a “Fuerza” */
+      margin-top: 15mm;
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
@@ -188,49 +209,299 @@
       font-size: 10pt;
     }
 
-    /* TIPS (no invasivo) */
-    .dl-field-nombre-tip .dl-nombre-tip-labels{
-      display:grid;
-      grid-template-columns: 1fr 0.65fr;
+    /* CABECERA ÚNICA (Atestado + Nombre + TIP + Filiaciones + Predefinido + Folio) */
+    .dl-cabecera .dl-cab-labels,
+    .dl-cabecera .dl-cab-inputs{
+      display: grid;
+      grid-template-columns: 1fr 0.35fr 1.25fr 0.75fr 0.5fr 0.5fr; /* prioridad: atestado > nombre > tip > filiaciones > predefinido > folio */
       gap: 1vw;
-      align-items:end;
+      width: 100%;
+      min-width: 0;
     }
-    .dl-field-nombre-tip .dl-nombre-tip-inputs{
-      display:grid;
-      grid-template-columns: 1fr 0.65fr;
-      gap: 1vw;
-      align-items:center;
-    }
+    .dl-cabecera .dl-cab-labels{ align-items: end; }
+    .dl-cabecera .dl-cab-inputs{ align-items: stretch; }
+    .dl-cabecera .dl-cab-labels label{ margin-bottom: 0; }
+
+    /* TIP input + botón añadir */
     .dl-tip-inputwrap{
       display:flex;
       gap: 0.6vw;
       align-items:center;
+      width: 100%;
     }
-    .dl-tip-inputwrap input{ flex: 1; }
-    
-    .dl-tip-add{
-      border: 0.1vw solid transparent;
+    .dl-tip-inputwrap input{
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Botones tipo “control” (Filiaciones / Predefinido) */
+    .dl-fili-inputwrap,
+    .dl-predef-inputwrap{
+      display:flex;
+      align-items:stretch;
+      width: 100%;
+    }
+
+    .dl-fili-add,
+    .dl-predef-add{
+      border: 0.15vw solid #ccc;
+      border-radius: 0.25vw;
+      background: #fff;
       cursor: pointer;
 
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      margin-left: -2.5vw;
-      padding: 0;
-      background: transparent;
+      gap: 0.45vw;
+
+      padding: 0 0.9vw;
+      width: 100%;
+      min-height: 100%;
+      font-weight: 700;
+      font-size: 0.85vw;
+      color: inherit;
+      white-space: nowrap;
     }
 
-    .dl-tip-add i{
-      font-size: 0.95vw; /* ajusta si lo ves grande/pequeño */
+    .dl-fili-add i,
+    .dl-predef-add i{
+      font-size: 0.95vw;
       line-height: 1;
     }
 
-    .dl-tip-add:hover{ color: #348139; }
+    .dl-fili-add:hover,
+    .dl-predef-add:hover{
+      border-color: #006449;
+      color: #006449;
+      background: #fafafa;
+    }
 
+    .dl-fili-add:active,
+    .dl-predef-add:active{ transform: translateY(0.05vw); }
+
+    /* Panel de filiaciones (caja cómoda entre cabecera y texto) */
+    .dl-fili-panel{
+      width: 100%;
+      margin-top: 1vw;
+      padding: 0.9vw;
+      border: 0.15vw solid #ccc;
+      border-radius: 0.25vw;
+      background: #fafafa;
+    }
+
+    .dl-fili-panel .dl-fili-panel-head{
+      display:flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1vw;
+      margin-bottom: 0.8vw;
+    }
+
+    .dl-fili-panel .dl-fili-panel-head h3{
+      margin: 0;
+      font-size: 1vw;
+    }
+
+    .dl-fili-panel .dl-fili-panel-sub{
+      margin: 0;
+      font-size: 0.85vw;
+      opacity: 0.85;
+    }
+
+    .dl-fili-grid{
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: 1vw;
+      row-gap: 0.8vw;
+      align-items: end;
+    }
+
+    .dl-fili-field{
+      display:flex;
+      flex-direction: column;
+      gap: 0.35vw;
+      min-width: 0;
+    }
+
+    .dl-fili-field label{
+      margin: 0;
+      font-size: 0.75vw;
+      font-weight: 700;
+    }
+
+    .dl-fili-panel input,
+    .dl-fili-panel select{
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.55vw;
+      border: 0.15vw solid #ccc;
+      border-radius: 0.25vw;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.9vw;
+      background: #fff;
+      min-width: 0;
+    }
+    select#filiSexo {
+    font-size: 0.8vw;
+    }
+    select#filiDocTipo {
+        font-size: 0.8vw;
+    }
+    /* Layout por líneas (estable) */
+    .dl-fili-sexo     { grid-column: 1 / span 1; }
+    .dl-fili-relacion { grid-column: 2 / span 2; }
+    .dl-fili-nombre   { grid-column: 4 / span 3; }
+    .dl-fili-ap1      { grid-column: 7 / span 3; }
+    .dl-fili-ap2      { grid-column: 10 / span 3; }
+    
+    .dl-fili-doctipo  { grid-column: 1 / span 1; }
+    #filiDocOtroWrap  { grid-column: 2 / span 2; } 
+    .dl-fili-docnum   { grid-column: 4 / span 3; } 
+    .dl-fili-fecha    { grid-column: 7 / span 2; } 
+    .dl-fili-lugar    { grid-column: 9 / span 4; } 
+
+    .dl-fili-padre{ grid-column: 1 / span 3; }
+    .dl-fili-madre{ grid-column: 4 / span 3; }
+    .dl-fili-domicilio{ grid-column: 7 / span 6; }
+
+    .dl-fili-localidad{ grid-column: 1 / span 4; } 
+    .dl-fili-cp       { grid-column: 5 / span 2; } 
+    .dl-fili-provincia{ grid-column: 7 / span 3; } 
+    .dl-fili-pais     { grid-column: 10 / span 3; }
+
+    .dl-fili-telefono{ grid-column: 1 / span 4; }
+    .dl-fili-email{ grid-column: 5 / span 8; }
+
+    /* “Otro”: reservar hueco y solo hacerlo visible cuando aplique (sin reflow) */
+    #filiDocOtroWrap{
+      transition: opacity 120ms ease;
+    }
+    #filiDocOtroWrap.dl-docotro-hidden{
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .dl-fili-actions{
+      margin-top: 1vw;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.8vw;
+    }
+    #filDocOtro:disabled{ opacity:.5; cursor:not-allowed; }
+    .dl-invalid{
+      border-color: var(--red) !important;
+      outline: 0.15vw solid var(--red);
+    }
+    .dl-field-error{
+      color: var(--red);
+      font-weight: 700;
+      font-size: 0.8vw;
+      margin-top: 0.25vw;
+    }
+
+    .dl-input-icon{ position:relative; }
+    .dl-input-icon input{ padding-right:2.4vw; position:relative; z-index:1; }
+
+    .dl-infoicon{
+      position:absolute;
+      right:0.55vw;
+      top:50%;
+      transform:translateY(-50%);
+      z-index:3;
+
+      width:1.25vw;
+      height:1.25vw;
+      border-radius:999px;
+      display:none;                 /* solo si hay error */
+      align-items:center;
+      justify-content:center;
+
+      font-weight:800;
+      font-size:0.85vw;
+      line-height:1;
+      cursor:help;
+      user-select:none;
+
+      background:#b00020;
+      color:#fff;
+    }
+
+    .dl-infoicon.is-visible{ display:inline-flex; }
+
+    /* Bocadillo */
+    .dl-infoicon::after{
+      content: attr(data-tip);
+          position: absolute;
+          right: 0;
+          top: calc(100% + 0.45vw);
+          min-width: 17vw;
+          white-space: normal;
+          padding: 0.25vw 0.35vw;
+          border-radius: 0.35vw;
+          background: #b00020;
+          color: #fff;
+          font-size: 0.65vw;
+          box-shadow: 0 0.2vw 0.6vw rgba(0, 0, 0, .2);
+          opacity: 0;
+          pointer-events: none;
+          transform: translateY(-0.2vw);
+          transition: opacity .12s ease, transform .12s ease;
+          white-space: pre-line;
+    }
+
+    /* Mostrar bocadillo automáticamente cuando hay error */
+    .dl-infoicon.is-visible::after,
+    .dl-infoicon.is-visible::before{
+      opacity:1;
+      transform: translateY(0);
+    }
+
+    /* (Opcional) mantener también en hover por si quieres forzarlo */
+    .dl-infoicon:hover::after,
+    .dl-infoicon:hover::before{
+      opacity:1;
+      transform: translateY(0);
+    }
+
+    /* oculto solo visualmente (sigue en el DOM para aria-live) */
+    .dl-sr-only{
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    .dl-btn-secondary,
+    .dl-btn-primary{
+      padding: 0.6vw 1vw;
+      border-radius: 0.25vw;
+      border: 0.15vw solid #ccc;
+      cursor: pointer;
+      font-weight: 700;
+      font-family: 'Montserrat', sans-serif;
+      background: #fff;
+    }
+
+    .dl-btn-secondary:hover{ background: #f2f2f2; }
+
+    .dl-btn-primary{
+      background: #006449;
+      color: #fff;
+      border-color: #006449;
+    }
+    .dl-btn-primary:hover{ filter: brightness(0.95); }
+
+    /* DETAILS / listados (TIPs y, si se usa, Filiaciones) */
     details.dl-tips-details{
       margin-top: 1vw;
       padding: 0.7vw 0.8vw;
-      border: 0.15vw solid #ddd;
+      border: 0.15vw solid #ccc;
       border-radius: 0.25vw;
       background: #fafafa;
     }
@@ -267,6 +538,26 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+
+    button.dl-tip-edit {
+      margin-right: 0.25vw;
+      border: 0.15vw solid #006449;
+      border-radius: 0.25vw;
+      min-width: 1.5vw;
+      max-width: 1.5vw;
+      height: 1.5vw;
+      cursor: pointer;
+      line-height: 1;
+      font-size: 1vw;
+      color: #006449;
+      background: transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    button.dl-tip-edit:hover{ background: #006449; color: #fff; }
+    button.dl-tip-edit:active{ transform: translateY(0.05vw); }
+
     .dl-tip-remove{
       border: 0.15vw solid #854242;
       border-radius: 0.25vw;
@@ -277,8 +568,13 @@
       line-height: 1;
       font-size: 1vw;
       color: #854242;
+      background: transparent;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
     }
-    .dl-tip-remove:hover{ background: #854242; color: #000}
+    .dl-tip-remove:hover{ background: #854242; color: #fff; }
+    .dl-tip-remove:active{ transform: translateY(0.05vw); }
 
     /* Impresión */
     @page { size: A4; margin: 0; }
@@ -301,7 +597,7 @@
     <h2 class="dl-title">Diligencia libre</h2>
 
     <p class="dl-help">
-      Rellena los campos y pulsa <strong>IMPRIMIR (PDF)</strong>. El navegador abrirá el diálogo de impresión; selecciona “Guardar como PDF”.
+      Completa los campos básicos (n.º de atestado, folio, título, TIP y texto) y genera la diligencia con el formato de impresión.
       Si ya tienes una diligencia guardada en <strong>.json</strong>, puedes <a class="dl-link" href="#" id="linkLoadJson">cargarla aquí</a>.
     </p>
 
@@ -309,31 +605,170 @@
 
     <section class="dl-card">
       <div class="dl-fields">
-        <div class="dl-field w-30">
-          <label for="dlAtestado"><strong>Número de atestado</strong></label>
-          <input id="dlAtestado" name="atestado" type="text" placeholder="Ej. 2026-337-000XXX">
-        </div>
-
-        <div class="dl-field w-20">
-          <label for="dlFolio"><strong>Folio</strong></label>
-          <input id="dlFolio" name="folio" type="text" placeholder="Ej. 1">
-        </div>
-
-        <div class="dl-field w-60 dl-field-nombre-tip">
-          <div class="dl-nombre-tip-labels">
+        <div class="dl-field w-100 dl-cabecera">
+          <div class="dl-cab-labels">
+            <label for="dlAtestado"><strong>Número de atestado</strong></label>
+            <label for="dlFolio"><strong>Folio</strong></label>
             <label for="dlNombre"><strong>Nombre de la diligencia *</strong></label>
             <label for="dlTipInput"><strong>TIP</strong></label>
+            <label for="btnFiliaciones"><strong>Filiaciones</strong></label>
+            <label for="btnPredefinido"><strong>Predefinido</strong></label>
           </div>
 
-          <div class="dl-nombre-tip-inputs">
+          <div class="dl-cab-inputs">
+            <input id="dlAtestado" name="atestado" type="text" placeholder="Ej. 202X-XXX-00X">
+            <input id="dlFolio" name="folio" type="text" placeholder="Ej. 1">
             <input id="dlNombre" name="nombre" type="text" placeholder="Ej. Exposición de hechos" required>
 
             <div class="dl-tip-inputwrap">
-              <input id="dlTipInput" type="text" placeholder="Añadir TIP" autocomplete="off">
-              <button id="btnAddTip" class="dl-tip-add" type="button" title="Añadir TIP">
+              <input id="dlTipInput" type="text" placeholder="TIP + ENTER para añadir" autocomplete="off">
+            </div>
+
+            <div class="dl-fili-inputwrap">
+              <button id="btnFiliaciones" class="dl-fili-add" type="button" title="Añadir filiación">
                 <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                <span class="dl-fili-text">Añadir</span>
               </button>
             </div>
+
+            <div class="dl-predef-inputwrap">
+              <button id="btnPredefinido" class="dl-predef-add" type="button" title="Añadir texto predefinido">
+                <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+                <span class="dl-predef-text">Añadir</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel desplegable de FILIACIONES (se muestra/oculta desde JS) -->
+        <div id="filiacionPanel" class="dl-fili-panel" style="display:none;">
+          <div class="dl-fili-panel-head">
+            <h3>Filiaciones</h3>
+            <p class="dl-fili-panel-sub">Ningún campo es obligatorio, pero si faltan los principales te lo recordará. Completa lo que tengas y guarda la filiación.</p>
+          </div>
+
+          <div class="dl-fili-grid">
+            <div class="dl-fili-field dl-fili-sexo">
+              <label for="filiSexo">Sexo</label>
+              <select id="filiSexo">
+                <option value="">—</option>
+                <option value="H">Hombre</option>
+                <option value="M">Mujer</option>
+              </select>
+            </div>
+
+            <div class="dl-fili-field dl-fili-relacion">
+              <label for="filiRelacion">Relación</label>
+              <input id="filiRelacion" type="text" placeholder="Autor, víctima...">
+            </div>
+
+            <div class="dl-fili-field dl-fili-nombre">
+              <label for="filiNombre">Nombre</label>
+              <input id="filiNombre" type="text" placeholder="Nombre">
+            </div>
+
+            <div class="dl-fili-field dl-fili-ap1">
+              <label for="filiApellido1">1.º Apellido</label>
+              <input id="filiApellido1" type="text" placeholder="Primer apellido">
+            </div>
+
+            <div class="dl-fili-field dl-fili-ap2">
+              <label for="filiApellido2">2.º Apellido</label>
+              <input id="filiApellido2" type="text" placeholder="Segundo apellido">
+            </div>
+
+            <div class="dl-fili-field dl-fili-doctipo">
+              <label for="filiDocTipo">Documento</label>
+              <select id="filiDocTipo">
+                <option value="">—</option>
+                <option value="DNI">DNI</option>
+                <option value="NIE">NIE</option>
+                <option value="OTRO">Otro</option>
+              </select>
+            </div>
+
+            <div id="filiDocOtroWrap" class="dl-fili-field dl-fili-docotro dl-docotro-hidden">
+              <label for="filiDocOtro">Especifica documento</label>
+              <input id="filiDocOtro" type="text" placeholder="Ej. Pasaporte">
+            </div>
+
+            <div class="dl-fili-field dl-fili-docnum">
+              <label for="filiDocNumero">N.º documento</label>
+
+            <div class="dl-input-icon">
+              <input id="filiDocNumero" type="text" placeholder="Ej. 12345678Z" aria-describedby="filDocError">
+
+              <!-- tooltip editable con data-tip -->
+              <span id="filDocInfo" class="dl-infoicon" data-tip="">
+                i
+              </span>
+            </div>
+
+            <div id="filDocError" class="dl-field-error dl-sr-only" aria-live="polite"></div>
+
+              <!-- Se queda solo para lectores de pantalla (no visible) -->
+              <div id="filDocError" class="dl-field-error dl-sr-only" aria-live="polite"></div>
+            </div>
+
+            <div class="dl-fili-field dl-fili-fecha">
+              <label for="filiFechaNac">Fecha de nacimiento</label>
+              <input id="filiFechaNac" type="date">
+            </div>
+
+            <div class="dl-fili-field dl-fili-lugar">
+              <label for="filiLugarNac">Lugar de nacimiento</label>
+              <input id="filiLugarNac" type="text" placeholder="Localidad / País">
+            </div>
+
+            <div class="dl-fili-field dl-fili-padre">
+              <label for="filiPadre">Nombre del padre</label>
+              <input id="filiPadre" type="text" placeholder="Nombre del padre">
+            </div>
+
+            <div class="dl-fili-field dl-fili-madre">
+              <label for="filiMadre">Nombre de la madre</label>
+              <input id="filiMadre" type="text" placeholder="Nombre de la madre">
+            </div>
+
+            <div class="dl-fili-field dl-fili-domicilio">
+              <label for="filiDomicilio">Domicilio</label>
+              <input id="filiDomicilio" type="text" placeholder="Calle, número, piso, puerta...">
+            </div>
+
+            <div class="dl-fili-field dl-fili-localidad">
+              <label for="filiLocalidad">Localidad</label>
+              <input id="filiLocalidad" type="text" placeholder="Localidad">
+            </div>
+
+            <div class="dl-fili-field dl-fili-cp">
+              <label for="filiCP">CP</label>
+              <input id="filiCP" type="text" placeholder="Código postal">
+            </div>
+
+            <div class="dl-fili-field dl-fili-provincia">
+              <label for="filiProvincia">Provincia</label>
+              <input id="filiProvincia" type="text" placeholder="Provincia">
+            </div>
+
+            <div class="dl-fili-field dl-fili-pais">
+              <label for="filiPais">País (si no es España)</label>
+              <input id="filiPais" type="text" placeholder="País">
+            </div>
+
+            <div class="dl-fili-field dl-fili-telefono">
+              <label for="filiTelefono">Teléfono</label>
+              <input id="filiTelefono" type="text" placeholder="Teléfono de contacto">
+            </div>
+
+            <div class="dl-fili-field dl-fili-email">
+              <label for="filiEmail">Correo electrónico</label>
+              <input id="filiEmail" type="email" placeholder="correo@ejemplo.com">
+            </div>
+          </div>
+
+          <div class="dl-fili-actions">
+            <button id="btnFiliCancelar" type="button" class="dl-btn-secondary" style="border-radius: 0.15vw; border:1px solid #bbb; cursor:pointer; min-width: 7.5vw; max-width: 7.5vw; min-height: 2vw;">Cancelar</button>
+            <button id="btnFiliGuardar" type="button" class="dl-btn-primary" style="border-radius: 0.15vw; border:1px solid #bbb; cursor:pointer; min-width: 7.5vw; max-width: 7.5vw; min-height: 2vw;">Guardar</button>
           </div>
         </div>
 
@@ -344,20 +779,30 @@
       </div>
 
       <details id="tipsDetails" class="dl-tips-details" style="display:none;">
-        <summary>TIPs añadidas - <span id="tipsCount">0</span></summary>
+        <summary>Elementos añadidos · TIPs: <span id="tipsCount">0</span> · Filiaciones: <span id="filiacionesCount">0</span></summary>
+
+        <div class="dl-subtitle">TIPs</div>
         <div id="tipsList" class="dl-tips-list"></div>
+
+        <div class="dl-subtitle">Filiaciones</div>
+        <div id="filiacionesList" class="dl-tips-list"></div>
       </details>
 
-
       <div class="dl-actions">
-        <button id="btnImprimir" type="button">IMPRIMIR (PDF)</button>
-        <button id="btnDownloadJson" type="button">DESCARGAR (.JSON)</button>
+        <button id="btnImprimir" type="button" style="border-radius: 0.15vw; border:1px solid #bbb; cursor:pointer; min-width: 7.5vw; max-width: 7.5vw; min-height: 2vw;">IMPRIMIR</button>
+        <button id="btnDownloadJson" type="button" style="border-radius: 0.15vw; border:1px solid #bbb; cursor:pointer; min-width: 7.5vw; max-width: 7.5vw; min-height: 2vw;">DESCARGAR</button>
       </div>
-
+      <p id="aviso-unidad"
+        style="display:none;color:#b00020;font-size:0.75vw;font-weight:500;">
+        <i class="fa-solid fa-circle-exclamation" style="margin-right:0.35vw;"></i>
+        No tienes cargados los datos de unidad y el pie de página se generará en blanco
+      </p>
       <div class="warnings" style="margin-top: 14px;">
-        <p style="margin: 10px 0;"><strong>Explicación rápida</strong></p>
-        <p style="margin: 6px 0;"><strong>Imprimir</strong> abre el diálogo del navegador (ahí podrás guardarla como PDF o imprimir el documento físico). Si el texto no cabe se generan páginas adicionales automáticamente.</p>
-        <p style="margin: 6px 0;"><strong>Descargar</strong> guarda esta diligencia en un .json para poder cargarla más adelante o compartirla.</p>
+        <p style="margin: 10px 0;"><strong>Explicación de las acciones del formulario</strong></p>
+        <ul>
+          <li style="margin: 6px 0;"><strong>Imprimir</strong> abre el diálogo del navegador (ahí podrás guardarla como PDF o imprimir el documento físico). Si el texto no cabe se generan páginas adicionales automáticamente.</li>
+          <li style="margin: 6px 0;"><strong>Descargar</strong> guarda esta diligencia en un .json para poder cargarla más adelante o compartirla.</li>
+        </ul>
       </div>
     </section>
 
@@ -370,5 +815,45 @@
   <script src="../js/utilidades.js"></script>
   <script src="../js/diligencialibre.js"></script>
   <script src="../js/iframe_autoaltura.js"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    const U = window.UtilidadesAtestapp;
+    const KEY_UNIDAD = U?.CLAVES_LOCALSTORAGE?.DATOS_UNIDAD || 'datosUnidad';
+    const KEY_UNIDAD_ANTIGUA = 'unitData';
+
+    function hayDatosUnidad() {
+      const raw = localStorage.getItem(KEY_UNIDAD) || localStorage.getItem(KEY_UNIDAD_ANTIGUA);
+      if (!raw) return false;
+
+      try {
+        const d = JSON.parse(raw);
+        if (!d || typeof d !== 'object') return false;
+
+        // Campos que ya usas en el shell
+        const tipoPuesto = String(d.tipopuesto || '').trim();
+        const nombreUnidad = String(d.nombreunidad || '').trim();
+
+        return Boolean(tipoPuesto || nombreUnidad);
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function refrescarAviso() {
+      const el = document.getElementById('aviso-unidad');
+      if (!el) return;
+      el.style.display = hayDatosUnidad() ? 'none' : 'block';
+    }
+
+    document.addEventListener('DOMContentLoaded', refrescarAviso);
+
+    // Si los datos se cargan desde otra página/iframe, esto se actualiza solo
+    window.addEventListener('storage', (e) => {
+      if (e.key === KEY_UNIDAD || e.key === KEY_UNIDAD_ANTIGUA) refrescarAviso();
+    });
+  })();
+  </script>
 </body>
 </html>

@@ -24,7 +24,7 @@
     --dark-red: #7a0015;
 }
 
-html, body { height: 100%; }
+html { height: 100%; }
 
 body {
     font-family: 'Montserrat', sans-serif;
@@ -40,7 +40,7 @@ body {
 @media screen {
     body{
         min-width: 1600px;
-        min-height: 900px;
+        min-height: 800px;
         overflow-x: auto;
     }
 }
@@ -146,7 +146,7 @@ nav {
     background-image: url(../assets/detalle-menu.png);
     background-size: 20.5vw;
     background-repeat: no-repeat;
-    background-position-x: 76vw;
+    background-position-x: 79.8vw;
     max-height: 4vh;
     overflow: visible;   
 
@@ -273,7 +273,7 @@ body.page main { padding: 0vw; }
     8) COMPONENTES — UNIDAD
    ======================= */
 .unit-data-management {
-    max-width: 80vw;
+    max-width: 82vw;
     margin: 0 auto;
     padding: 0vw;
 }
@@ -336,28 +336,40 @@ body.page main { padding: 0vw; }
 /* Botones del formulario (Guardar/Descargar/Borrar) */
 #save-btn,
 #download-btn,
-#delete-btn {
+#delete-btn,
+button#btnFiliCancelar,
+button#btnImprimir,
+#btnDownloadJson,
+button#btnFiliGuardar {
     transition: background-color 0.2s ease, color 0.2s ease, filter 0.2s ease;
 }
 
 #save-btn,
-#download-btn {
+#download-btn,
+button#btnImprimir,
+#btnDownloadJson,
+button#btnFiliGuardar {
     background-color: var(--dark-green);
     color: var(--white);
 }
 
 #save-btn:hover,
-#download-btn:hover {
+#download-btn:hover,
+button#btnImprimir:hover,
+#btnDownloadJson:hover,
+button#btnFiliGuardar:hover {
     background-color: var(--yellow);
     color: var(--dark-green);
 }
 
-#delete-btn {
+#delete-btn,
+button#btnFiliCancelar {
     background-color: var(--dark-red);
     color: var(--white);
 }
 
-#delete-btn:hover {
+#delete-btn:hover,
+button#btnFiliCancelar:hover {
     background-color: var(--red);
     color: var(--white);
 }

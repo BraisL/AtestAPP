@@ -54,6 +54,38 @@
     }
   }
 
+function descargarJson(datos, nombreArchivo) {
+  const nombre = String(nombreArchivo || '').trim() || 'datos.json';
+  const blob = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  const enlace = document.createElement('a');
+  enlace.href = url;
+  enlace.download = nombre;
+  document.body.appendChild(enlace);
+  enlace.click();
+  document.body.removeChild(enlace);
+  URL.revokeObjectURL(url);
+}
+
+function leerArchivoComoTexto(archivo) {
+  return new Promise((resolve, reject) => {
+    try {
+      const lector = new FileReader();
+      lector.onload = (ev) => resolve(String(ev?.target?.result || ''));
+      lector.onerror = () => reject(new Error('Error al leer el archivo'));
+      lector.readAsText(archivo);
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+async function leerJsonDeArchivo(archivo) {
+  const texto = await leerArchivoComoTexto(archivo);
+  return JSON.parse(texto);
+}
+
   // Exponer en window (no ES modules; compatible con <script src="...">)
   window.UtilidadesAtestapp = {
     CLAVES_LOCALSTORAGE,
@@ -63,5 +95,8 @@
     sanearNombreBaseArchivo,
     asegurarExtension,
     migrarDatosUnidadSiProcede,
+    descargarJson,
+    leerArchivoComoTexto,
+    leerJsonDeArchivo,
   };
 })();

@@ -54,8 +54,24 @@
     filEmail: porId('filiEmail'),
     btnGuardarFiliacion: porId('btnFiliGuardar'),
     btnCancelarFiliacion: porId('btnFiliCancelar'),
+    btnCargarFiliacion: porId('btnFiliCargar'),
+    btnDescargarFiliacion: porId('btnFiliDescargar'),
+    archivoCargarFiliacion: porId('fileLoadFiliacion'),
     filiacionesContador: porId('filiacionesCount'),
     filiacionesLista: porId('filiacionesList'),
+    cierresContador: porId('cierresCount'),
+    cierresLista: porId('cierresList'),
+    btnPredefinido: porId('btnPredefinido'),
+    predefMenu: porId('predefMenu'),
+    predefOpt1: porId('predefOpt1'),
+    predefOpt2: porId('predefOpt2'),
+    predefOpt3: porId('predefOpt3'),
+
+    predefModal: porId('predefModal'),
+    predefCustomText: porId('predefCustomText'),
+    predefCustomOk: porId('predefCustomOk'),
+    predefCustomCancel: porId('predefCustomCancel'),
+
 
     botonImprimir: porId('btnImprimir'),
     botonDescargarJson: porId('btnDownloadJson'),
@@ -74,6 +90,8 @@
 
   /** @type {any[]} */
   let listaFiliaciones = [];
+
+  let listaCierres = [];
 
   /** Índice de edición de filiación (>=0 cuando editas) */
   let filiacionEditIdx = -1;
@@ -110,6 +128,16 @@
 
   function normalizarTip(texto) {
     return String(texto || '').replace(/\s+/g, ' ').trim();
+  }
+
+  function normalizarCierre(texto) {
+    return String(texto || '').replace(/\r\n/g, '\n').trim();
+  }
+
+  function resumenCierre(texto, maxLen = 80) {
+    const plano = normalizarTextoPlano(texto);
+    if (plano.length <= maxLen) return plano;
+    return plano.slice(0, Math.max(0, maxLen - 1)).trimEnd() + '…';
   }
 
   function escaparHtml(texto) {
@@ -262,20 +290,23 @@
   // TIPS UI (no invasivo)
   // -----------------------------
   function renderizarTipsUI() {
-    // Ahora renderiza tanto TIPs como Filiaciones en el mismo panel de gestión.
+    // Renderiza TIPs, Filiaciones y Cierres en el mismo panel de gestión.
     if (!elementos.tipsDetalles || !elementos.tipsContador || !elementos.tipsLista
-      || !elementos.filiacionesContador || !elementos.filiacionesLista) return;
+      || !elementos.filiacionesContador || !elementos.filiacionesLista
+      || !elementos.cierresContador || !elementos.cierresLista) return;
 
     // Contadores
     elementos.tipsContador.textContent = String(listaTips.length);
     elementos.filiacionesContador.textContent = String(listaFiliaciones.length);
+    elementos.cierresContador.textContent = String(listaCierres.length);
 
     // Limpiar listas
     elementos.tipsLista.innerHTML = '';
     elementos.filiacionesLista.innerHTML = '';
+    elementos.cierresLista.innerHTML = '';
 
     // Mostrar/ocultar el panel
-    if (listaTips.length === 0 && listaFiliaciones.length === 0) {
+    if (listaTips.length === 0 && listaFiliaciones.length === 0 && listaCierres.length === 0) {
       elementos.tipsDetalles.style.display = 'none';
       return;
     }
@@ -352,7 +383,37 @@
       item.appendChild(acciones);
       elementos.filiacionesLista.appendChild(item);
     });
+
+    // Cierres
+    listaCierres.forEach((c, idx) => {
+      const item = document.createElement('div');
+      item.className = 'dl-tip-item';
+
+      const span = document.createElement('span');
+      span.className = 'dl-tip-text';
+      span.title = c;
+      span.textContent = resumenCierre(c, 80);
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'dl-tip-remove';
+      btn.setAttribute('aria-label', 'Eliminar cierre');
+      btn.title = 'Eliminar';
+      btn.textContent = '×';
+      btn.addEventListener('click', () => {
+        const ok = confirm('¿Quieres eliminar este cierre?');
+        if (!ok) return;
+        listaCierres.splice(idx, 1);
+        renderizarTipsUI();
+      });
+
+      item.appendChild(span);
+      item.appendChild(btn);
+      elementos.cierresLista.appendChild(item);
+    });
   }
+
+
 
   function anadirTipDesdeEntrada() {
     if (!elementos.tipEntrada) return;
@@ -367,6 +428,20 @@
     elementos.tipEntrada.value = '';
     renderizarTipsUI();
     elementos.tipEntrada.focus();
+  }
+
+
+  function anadirCierre(texto) {
+    const t = normalizarCierre(texto);
+    if (!t) return;
+
+    // Evitar duplicados exactos (tolerante a espacios)
+    const key = normalizarTextoPlano(t).toLowerCase();
+    if (!listaCierres.some((x) => normalizarTextoPlano(x).toLowerCase() === key)) {
+      listaCierres.push(t);
+    }
+
+    renderizarTipsUI();
   }
 
   function engancharEventosTips() {
@@ -593,6 +668,106 @@
     renderizarTipsUI();
   }
 
+  function esFiliacionVacia(f) {
+    const x = normalizarFiliacion(f);
+    const campos = [
+      x.sexo, x.relacion, x.nombre, x.apellido1, x.apellido2,
+      x.docTipo, x.docNumero, x.docOtro,
+      x.fechaNac, x.lugarNac, x.padre, x.madre,
+      x.domicilio, x.localidad, x.cp, x.provincia, x.pais,
+      x.telefono, x.email
+    ];
+    return campos.every(v => !String(v || '').trim());
+  }
+
+  function extraerFiliacionDeJson(datos) {
+    if (!datos || typeof datos !== 'object') return null;
+
+    // Formato recomendado: { filiacion: {...} }
+    if (datos.filiacion && typeof datos.filiacion === 'object') return datos.filiacion;
+
+    // Si te pasan una diligencia completa: { filiaciones: [...] }
+    if (Array.isArray(datos.filiaciones) && datos.filiaciones.length) {
+      return datos.filiaciones[0];
+    }
+
+    // Si te pasan directamente el objeto de filiación
+    const claves = ['nombre', 'apellido1', 'docTipo', 'docNumero', 'fechaNac', 'domicilio'];
+    if (claves.some(k => Object.prototype.hasOwnProperty.call(datos, k))) return datos;
+
+    return null;
+  }
+
+  function sugerirNombreArchivoFiliacion(f) {
+    const x = normalizarFiliacion(f);
+
+    const docTipo = (x.docTipo === 'OTRO')
+      ? (normalizarTextoPlano(x.docOtro) || 'OTRO')
+      : (String(x.docTipo || 'DOC').trim() || 'DOC');
+
+    const docNum = normalizarTextoPlano(x.docNumero);
+
+    let ident = '';
+    if (docNum) {
+      ident = `${docTipo}_${docNum}`;
+    } else {
+      const ap = normalizarTextoPlano(x.apellido1);
+      const nom = normalizarTextoPlano(x.nombre);
+      ident = [ap, nom].filter(Boolean).join('_') || 'sin_datos';
+    }
+
+    return `filiacion_${ident}`;
+  }
+
+  function descargarFiliacionActual() {
+    const f = leerFormularioFiliacion();
+    if (esFiliacionVacia(f)) {
+      alert('El formulario de filiación está vacío.');
+      return;
+    }
+
+    const payload = {
+      tipo: 'filiacion',
+      schema: 1,
+      app: 'AtestApp',
+      creadoEn: new Date().toISOString(),
+      filiacion: f,
+    };
+
+    const sugerida = sugerirNombreArchivoFiliacion(f);
+
+    const base = (U && typeof U.sanearNombreBaseArchivo === 'function')
+      ? U.sanearNombreBaseArchivo(sugerida)
+      : sanearNombreBaseArchivo(sugerida);
+
+    const nombrePorDefecto = (U && typeof U.asegurarExtension === 'function')
+      ? U.asegurarExtension(base || 'filiacion', '.json')
+      : asegurarExtension(base || 'filiacion', '.json');
+
+    const entradaNombre = prompt('Nombre del archivo de filiación:', nombrePorDefecto);
+
+    const nombreArchivo = (U && typeof U.asegurarExtension === 'function')
+      ? U.asegurarExtension(entradaNombre, '.json')
+      : asegurarExtension(entradaNombre, '.json');
+
+    if (!nombreArchivo) return;
+
+    if (U && typeof U.descargarJson === 'function') {
+      U.descargarJson(payload, nombreArchivo);
+      return;
+    }
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.download = nombreArchivo;
+    document.body.appendChild(enlace);
+    enlace.click();
+    document.body.removeChild(enlace);
+    URL.revokeObjectURL(url);
+  }
+
   function engancharEventosFiliaciones() {
     if (elementos.btnFiliaciones) {
       elementos.btnFiliaciones.addEventListener('click', () => {
@@ -622,8 +797,217 @@
       validarDocumentoUI();
     });
 
+    elementos.btnDescargarFiliacion?.addEventListener('click', () => {
+      descargarFiliacionActual();
+    });
+
+    elementos.btnCargarFiliacion?.addEventListener('click', () => {
+      elementos.archivoCargarFiliacion?.click();
+    });
+
+    elementos.archivoCargarFiliacion?.addEventListener('change', async (e) => {
+      const archivo = e.target.files && e.target.files[0];
+      e.target.value = ''; // permitir recargar el mismo archivo
+      if (!archivo) return;
+
+      // Si ya había algo escrito, avisar
+      const actual = leerFormularioFiliacion();
+      if (!esFiliacionVacia(actual)) {
+        const ok = confirm('Se sustituirán los datos actuales del formulario por los del archivo. ¿Continuar?');
+        if (!ok) return;
+      }
+
+      try {
+        const datos = (U && typeof U.leerJsonDeArchivo === 'function')
+          ? await U.leerJsonDeArchivo(archivo)
+          : JSON.parse(await new Promise((resolve, reject) => {
+              const r = new FileReader();
+              r.onload = (ev) => resolve(String(ev?.target?.result || ''));
+              r.onerror = () => reject(new Error('Error al leer el archivo'));
+              r.readAsText(archivo);
+            }));
+
+        const f = extraerFiliacionDeJson(datos);
+        if (!f) {
+          alert('El JSON no contiene una filiación válida.');
+          return;
+        }
+
+        cargarFormularioFiliacion(f);
+        validarDocumentoUI(); // refresca el estado del DNI/NIE si aplica
+        alert('Filiación cargada en el formulario (no se añade hasta que pulses Guardar).');
+      } catch (_) {
+        alert('Error al leer el archivo. Asegúrese de que es un JSON válido.');
+      }
+    });
   }
 
+  // -----------------------------
+  // Predefinidos (popover + inserciones)
+  // -----------------------------
+  function pad2(n){ return String(n).padStart(2,'0'); }
+
+  function fechaHoraEspanolAhora() {
+    const d = new Date();
+    const hh = pad2(d.getHours());
+    const mm = pad2(d.getMinutes());
+    const dd = pad2(d.getDate());
+    const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    const mes = meses[d.getMonth()] || '';
+    const yyyy = d.getFullYear();
+    return { hh, mm, dd, mes, yyyy };
+  }
+
+  function obtenerLocalidadProvinciaUnidad() {
+    const u = obtenerDatosUnidad() || {};
+    const loc = String(u.localidad || '').trim();
+    const prov = String(u.provincia || '').trim();
+    return { loc, prov };
+  }
+
+  function obtenerTipsInstructorSecretario() {
+    const t1 = listaTips && listaTips[0] ? String(listaTips[0]).trim() : '';
+    const t2 = listaTips && listaTips[1] ? String(listaTips[1]).trim() : '';
+    return {
+      instructor: t1 || '_____',
+      secretario: t2 || '_____',
+    };
+  }
+
+  function insertarEnTextarea(el, texto, modo /* 'cursor' | 'inicio' | 'final' */) {
+    if (!el) return;
+    const v = String(el.value || '');
+    const t = String(texto || '');
+    el.focus();
+
+    if (modo === 'inicio') {
+      el.value = t + (v ? '\n\n' + v : '');
+      return;
+    }
+    if (modo === 'final') {
+      el.value = (v ? v.replace(/\s*$/,'') + '\n\n' : '') + t;
+      return;
+    }
+
+    // cursor (inserción literal, sin añadir saltos extra)
+    const start = el.selectionStart ?? v.length;
+    const end = el.selectionEnd ?? v.length;
+    const before = v.slice(0, start);
+    const after = v.slice(end);
+
+    el.value = before + t + after;
+
+    const pos = (before + t).length;
+    el.setSelectionRange(pos, pos);
+  }
+
+  function abrirPredefMenu() {
+    if (!elementos.predefMenu) return;
+    elementos.predefMenu.style.display = 'block';
+  }
+  function cerrarPredefMenu() {
+    if (!elementos.predefMenu) return;
+    elementos.predefMenu.style.display = 'none';
+  }
+  function togglePredefMenu() {
+    if (!elementos.predefMenu) return;
+    const abierto = elementos.predefMenu.style.display !== 'none' && elementos.predefMenu.style.display !== '';
+    if (abierto) cerrarPredefMenu();
+    else abrirPredefMenu();
+  }
+
+  function abrirModalPersonalizado() {
+    if (!elementos.predefModal || !elementos.predefCustomText) return;
+    elementos.predefCustomText.value = '';
+    elementos.predefModal.style.display = 'flex';
+    elementos.predefModal.setAttribute('aria-hidden', 'false');
+    setTimeout(() => elementos.predefCustomText?.focus(), 0);
+  }
+  function cerrarModalPersonalizado() {
+    if (!elementos.predefModal) return;
+    elementos.predefModal.style.display = 'none';
+    elementos.predefModal.setAttribute('aria-hidden', 'true');
+  }
+
+  function plantillaCabecera() {
+    const { loc, prov } = obtenerLocalidadProvinciaUnidad();
+    const { hh, mm, dd, mes, yyyy } = fechaHoraEspanolAhora();
+    const tips = obtenerTipsInstructorSecretario();
+
+    const locTxt = loc ? loc : '_____';
+    const provTxt = prov ? prov : '_____';
+
+    return [
+      `En ${locTxt}, ${provTxt}, siendo las ${hh}:${mm} horas del día ${dd} de ${mes} de ${yyyy}, actuando como Instructor de las presentes diligencias el agente de la Guardia Civil con Tarjeta de Identidad Profesional (TIP) ${tips.instructor} y actuando como Secretario el agente con TIP ${tips.secretario}, por medio de la presente se hace constar que:`
+    ].join('\n');
+  }
+
+    function plantillaCierre284() {
+      return [
+        'Se dan por tanto inicio a las presentes diligencias, en atención a cuanto dispone el artículo 284 de LECrim, con sujeción a las formalidades y principios que fija la referida norma legal.',
+        'Y para que conste, se extiende la presente que firma la fuerza instructora, en el lugar y fecha señalados.'
+      ];
+    }
+
+  function engancharEventosPredefinidos() {
+    // botón “Añadir” (popover)
+    elementos.btnPredefinido?.addEventListener('click', () => {
+      togglePredefMenu();
+    });
+
+    // cerrar al clicar fuera
+    document.addEventListener('click', (e) => {
+      const menu = elementos.predefMenu;
+      const btn = elementos.btnPredefinido;
+      if (!menu || !btn) return;
+
+      const t = e.target;
+      const dentro = menu.contains(t) || btn.contains(t);
+      if (!dentro) cerrarPredefMenu();
+    });
+
+    // ESC cierra
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        cerrarPredefMenu();
+        cerrarModalPersonalizado();
+      }
+    });
+
+    // Opciones
+    elementos.predefOpt1?.addEventListener('click', () => {
+      cerrarPredefMenu();
+      insertarEnTextarea(elementos.texto, plantillaCabecera(), 'cursor');
+    });
+
+    elementos.predefOpt2?.addEventListener('click', () => {
+      cerrarPredefMenu();
+      const partes = plantillaCierre284();
+      partes.forEach((p) => anadirCierre(p));
+    });
+
+    elementos.predefOpt3?.addEventListener('click', () => {
+      cerrarPredefMenu();
+      abrirModalPersonalizado();
+    });
+
+    // Modal personalizado
+    elementos.predefCustomCancel?.addEventListener('click', () => {
+      cerrarModalPersonalizado();
+    });
+
+    elementos.predefModal?.addEventListener('click', (e) => {
+      // click en el overlay (no en la tarjeta) => cerrar
+      if (e.target === elementos.predefModal) cerrarModalPersonalizado();
+    });
+
+    elementos.predefCustomOk?.addEventListener('click', () => {
+      const txt = String(elementos.predefCustomText?.value || '').trim();
+      if (!txt) { cerrarModalPersonalizado(); return; }
+      anadirCierre(txt);
+      cerrarModalPersonalizado();
+    });
+  }
 
   // -----------------------------
   // Datos de unidad (pie)
@@ -703,6 +1087,7 @@
       texto: String(elementos.texto?.value || ''),
       tips: Array.isArray(listaTips) ? [...listaTips] : [],
       filiaciones: Array.isArray(listaFiliaciones) ? JSON.parse(JSON.stringify(listaFiliaciones)) : [],
+      cierres: Array.isArray(listaCierres) ? [...listaCierres] : [],
       unidad: obtenerDatosUnidad(),
       creadoEn: new Date().toISOString(),
     };
@@ -741,6 +1126,11 @@
   const TAG_FILI_FIN = '[[/FILIACIONES]]';
   const TAG_TIPS_INI = '[[TIPS]]';
   const TAG_TIPS_FIN = '[[/TIPS]]';
+  const TAG_CIERRE_INI = '[[CIERRE]]';
+  const TAG_CIERRE_FIN = '[[/CIERRE]]';
+  const TAG_CIERRE_ITEM_INI = '[[CIERRE_ITEM]]';
+  const TAG_CIERRE_ITEM_FIN = '[[/CIERRE_ITEM]]';
+
   // “Tab” pequeño (mejor con NBSP para que sea 100% estable en impresión)
   const INDENT_PARRAFO = '\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0';
 
@@ -759,75 +1149,83 @@
       // Separador de párrafos: lo dejamos tal cual
       if (/^\n/.test(seg)) return seg;
       // Segmento de texto: si tiene contenido, sangrar el inicio
-      return seg.trim() ? (INDENT_PARRAFO + seg.replace(/^\s+/, '')) : seg;
+      return seg.trim() ? (INDENT_PARRAFO + seg.replace(/^[\s\u00A0]+/, '')) : seg;
     }).join('');
   }
 
-  /** Construye el sufijo (marcador + TIPs) que solo va en la última hoja. */
-  function construirSufijoBloquesFinales(tips, filiaciones) {
-    const arrTips = Array.isArray(tips) ? tips.map(normalizarTip).filter(Boolean) : [];
-    const arrFili = Array.isArray(filiaciones) ? filiaciones.map(construirTextoFiliacion).filter(Boolean) : [];
+  function aplicarIndentLineasNoVacias(texto) {
+    const t = String(texto || '').replace(/\r\n/g, '\n');
+    if (!t.trim()) return t;
 
-    if (!arrTips.length && !arrFili.length) return '';
-
-    const lineas = [];
-    lineas.push('');
-    lineas.push('');
-    lineas.push(MARCADOR_BLOQUES);
-
-    if (arrFili.length) {
-      lineas.push(TAG_FILI_INI);
-      lineas.push(...arrFili);
-      lineas.push(TAG_FILI_FIN);
-    }
-
-    if (arrTips.length) {
-      lineas.push(TAG_TIPS_INI);
-      lineas.push(...arrTips);
-      lineas.push(TAG_TIPS_FIN);
-    }
-
-    return lineas.join('\n');
+    return t.split('\n').map((linea) => {
+      if (!linea.trim()) return linea;
+      return INDENT_PARRAFO + linea.replace(/^[\s\u00A0]+/, '');
+    }).join('\n');
   }
 
-  /**
-   * Pinta el contenido del field-texto.
-   * - Sin marcador: texto plano con sangría.
-   * - Con marcador: texto plano + bloque “La Fuerza Instructora” + TIPs en cajas.
-   */
-  function pintarTextoConBloques(nodoTexto, textoPagina) {
+function pintarTextoConBloques(nodoTexto, textoPagina) {
     if (!nodoTexto) return;
 
     const texto = String(textoPagina || '');
     const idx = texto.indexOf(MARCADOR_BLOQUES);
 
-    // Página normal: solo texto
     if (idx === -1) {
       nodoTexto.innerHTML = '';
       nodoTexto.textContent = aplicarIndentPrimeraLinea(texto);
       return;
     }
 
-    // Página con bloque final
     const parteTexto = texto.slice(0, idx).replace(/\s+$/g, '');
     const resto = texto.slice(idx + MARCADOR_BLOQUES.length);
 
-    // Parseo por tags de secciones
-    const lineas = resto.split('\n').map(l => String(l || '').trim()).filter(l => l.length > 0);
+    const rawLines = resto.split('\n');
 
     let modo = '';
     const fili = [];
+    const cierres = [];
     const tips = [];
 
-    for (const ln of lineas) {
-      if (ln === TAG_FILI_INI) { modo = 'fili'; continue; }
-      if (ln === TAG_FILI_FIN) { modo = ''; continue; }
-      if (ln === TAG_TIPS_INI) { modo = 'tips'; continue; }
-      if (ln === TAG_TIPS_FIN) { modo = ''; continue; }
+    let cierreEnItem = false;
+    let cierreBuf = [];
 
-      if (modo === 'fili') fili.push(ln);
-      else if (modo === 'tips') tips.push(ln);
+    const cerrarItemSiProcede = () => {
+      if (!cierreEnItem) return;
+      const t = cierreBuf.join('\n').replace(/\r/g, '').trim();
+      if (t) cierres.push(t);
+      cierreBuf = [];
+      cierreEnItem = false;
+    };
+
+    for (const rawLine of rawLines) {
+      const ln = String(rawLine ?? '');
+      const t = ln.trim();
+
+      if (t === TAG_FILI_INI) { modo = 'fili'; continue; }
+      if (t === TAG_FILI_FIN) { modo = ''; continue; }
+
+      if (t === TAG_CIERRE_INI) { modo = 'cierre'; continue; }
+      if (t === TAG_CIERRE_FIN) { cerrarItemSiProcede(); modo = ''; continue; }
+
+      if (t === TAG_TIPS_INI) { modo = 'tips'; continue; }
+      if (t === TAG_TIPS_FIN) { modo = ''; continue; }
+
+      if (modo === 'cierre') {
+        if (t === TAG_CIERRE_ITEM_INI) { cerrarItemSiProcede(); cierreEnItem = true; cierreBuf = []; continue; }
+        if (t === TAG_CIERRE_ITEM_FIN) { cerrarItemSiProcede(); continue; }
+      }
+
+      if (modo === 'fili') {
+        if (t) fili.push(t);
+      } else if (modo === 'tips') {
+        if (t) tips.push(t);
+      } else if (modo === 'cierre') {
+        if (cierreEnItem) cierreBuf.push(ln.replace(/\r/g, ''));
+        else if (t) cierres.push(t); // compatibilidad con cierres antiguos (1 línea)
+      }
     }
+
+    cerrarItemSiProcede();
+
 
     nodoTexto.innerHTML = '';
 
@@ -854,6 +1252,29 @@
       nodoTexto.appendChild(contF);
     }
 
+    // CIERRES (solo impresión) -> VAN AQUÍ, antes de “La Fuerza Instructora”
+    if (cierres.length) {
+      const contC = document.createElement('div');
+      contC.className = 'bloque-filiaciones'; // reutilizo spacing/white-space sin tocar CSS
+      cierres.forEach((t) => {
+        const partes = String(t || '')
+          .replace(/\r\n/g, '\n')
+          // 1 o más saltos => nuevo párrafo (así Enter también crea “párrafo” con indent)
+          .split(/\n+/)
+          .map(s => s.replace(/^[\s\u00A0]+/, '').trimEnd())
+          .filter(Boolean);
+
+        partes.forEach((seg) => {
+          const p = document.createElement('div');
+          // importante: usar la indentación CSS existente, NO INDENT_PARRAFO
+          p.className = 'filiacion-p parrafo';
+          p.textContent = seg;
+          contC.appendChild(p);
+        });
+      });
+      nodoTexto.appendChild(contC);
+    }
+
     // “La Fuerza Instructora” + TIPs (cajas)
     if (tips.length) {
       const fuerza = document.createElement('div');
@@ -867,14 +1288,14 @@
         .map((t) => `<span class="tip-box">${escaparHtml(t)}</span>`)
         .join('');
       nodoTexto.appendChild(contTips);
-    } else if (fili.length) {
-      // Si hay filiaciones, mantenemos el cierre estándar
+    } else if (fili.length || cierres.length) {
       const fuerza = document.createElement('div');
       fuerza.className = 'bloque-fuerza';
       fuerza.textContent = 'La Fuerza Instructora';
       nodoTexto.appendChild(fuerza);
     }
   }
+
 
   // -----------------------------
   // Medición (paginación)
@@ -924,19 +1345,45 @@
    * Mide la altura real (en el mismo estilo del field-texto) del bloque final
    * “La Fuerza Instructora” + TIPs, para poder reservar ese espacio en la última hoja.
    */
-  function medirAlturaBloqueFinal(hojaMuestra, tips, filiaciones) {
-    const sufijo = construirSufijoBloquesFinales(tips, filiaciones);
-    if (!sufijo) return 0;
+    function construirSufijoBloquesFinales(tips, filiaciones, cierres) {
+      const arrTips = Array.isArray(tips) ? tips.map(normalizarTip).filter(Boolean) : [];
+      const arrFili = Array.isArray(filiaciones) ? filiaciones.map(construirTextoFiliacion).filter(Boolean) : [];
+      const arrCierre = Array.isArray(cierres) ? cierres.map(normalizarCierre).filter(Boolean) : [];
 
-    const medidor = crearNodoMedicion(hojaMuestra);
-    medidor.innerHTML = '';
-    // Render del bloque solo (sin texto base) para medir su altura exacta
-    pintarTextoConBloques(medidor, sufijo.trimStart());
-    const h = medidor.scrollHeight || medidor.getBoundingClientRect().height || 0;
-    document.body.removeChild(medidor);
-    return h;
-  }
+      if (!arrTips.length && !arrFili.length && !arrCierre.length) return '';
 
+      const lineas = [];
+      lineas.push('');
+      lineas.push('');
+      lineas.push(MARCADOR_BLOQUES);
+
+      if (arrFili.length) {
+        lineas.push(TAG_FILI_INI);
+        lineas.push(...arrFili);
+        lineas.push(TAG_FILI_FIN);
+      }
+
+      if (arrCierre.length) {
+        lineas.push(TAG_CIERRE_INI);
+
+        arrCierre.forEach((c) => {
+          lineas.push(TAG_CIERRE_ITEM_INI);
+          const ls = String(c || '').replace(/\r\n/g, '\n').split('\n');
+          lineas.push(...ls);
+          lineas.push(TAG_CIERRE_ITEM_FIN);
+        });
+
+        lineas.push(TAG_CIERRE_FIN);
+      }
+
+      if (arrTips.length) {
+        lineas.push(TAG_TIPS_INI);
+        lineas.push(...arrTips);
+        lineas.push(TAG_TIPS_FIN);
+      }
+
+      return lineas.join('\n');
+    }
   
   // -----------------------------
   // Paginación robusta por overflow real (campo de la hoja)
@@ -1174,7 +1621,7 @@
 
     // Añadir bloque final (TIPs y/o filiaciones) a la última página si cabe.
     // Si no cabe, se envía a una hoja nueva para evitar cortes.
-    const sufijo = construirSufijoBloquesFinales(datos.tips, datos.filiaciones);
+    const sufijo = construirSufijoBloquesFinales(datos.tips, datos.filiaciones, datos.cierres);
     if (sufijo) {
       const idxUlt = Math.max(0, paginas.length - 1);
       const propuesta = (paginas[idxUlt] || '').trimEnd() + sufijo;
@@ -1308,6 +1755,13 @@
           listaFiliaciones = [];
         }
 
+        // Cierres (compatibilidad con JSONs antiguos)
+        if (Array.isArray(datos.cierres)) {
+          listaCierres = datos.cierres.map(normalizarCierre).filter(Boolean);
+        } else {
+          listaCierres = [];
+        }
+
         renderizarTipsUI();
         alert('Diligencia cargada correctamente');
       } catch (_) {
@@ -1322,5 +1776,6 @@
   // -----------------------------
   engancharEventosTips();
   engancharEventosFiliaciones();
+  engancharEventosPredefinidos();
   renderizarTipsUI();
 })();

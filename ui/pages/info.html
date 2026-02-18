@@ -3,15 +3,412 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AtestAPP - Info</title>
+  <title>AtestAPP - Información</title>
+
   <link rel="stylesheet" href="../css/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css">
+
+  <style>
+
+    body.page main {
+      padding: 0 0 1vw 0;
+    }
+
+    .info-wrap{
+      max-width: 81vw;
+      margin: 0 auto;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .info-title{ margin: 0.83em 0 0.7em 0; }
+
+    .info-grid{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1vw;
+      align-items: stretch;
+    }
+
+    .info-card{
+      border: 0.15vw solid #ccc;
+      border-radius: 0.25vw;
+      padding: 1vw;
+      background: #fff;
+      box-sizing: border-box;
+      min-height: 14.2vw; /* similar */
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-card h3{
+      margin: 0 0 0.6vw 0;
+      font-size: 1.02vw;
+      letter-spacing: .2px;
+      display:flex;
+      align-items:center;
+      gap: 0.55vw;
+    }
+
+    .info-card p, .info-card li{
+      font-size: 0.88vw;
+      line-height: 1.5;
+      margin: 0.28vw 0;
+      opacity: 0.98;
+    }
+
+    .info-card ul{
+      margin: 0.4vw 0 0 1.1vw;
+      padding: 0;
+    }
+
+    .muted{ opacity: 0.92; }
+
+    .card-actions{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 0.7vw;
+      margin-top: auto;
+      padding-top: 0.8vw;
+    }
+
+    .info-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 0.55vw;
+      text-decoration:none;
+      border: 1px solid #bbb;
+      border-radius: 0.15vw;
+      cursor:pointer;
+      padding: 0.6vw 1vw;
+      min-width: 12vw;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 0.82vw;
+      transition: background-color 0.2s ease, color 0.2s ease, filter 0.2s ease, opacity 0.2s ease;
+      background: #fff;
+      color: var(--dark-green);
+    }
+    .info-btn:hover{
+      background-color: var(--yellow);
+      color: var(--dark-green);
+    }
+    .info-btn[disabled]{
+      opacity: 0.55;
+      cursor: not-allowed;
+      filter: grayscale(0.25);
+    }
+
+    code.inline{
+      font-family: monospace;
+      font-size: 0.86vw;
+      background: rgba(0,0,0,0.04);
+      border: 1px solid rgba(0,0,0,0.08);
+      padding: 0.1vw 0.35vw;
+      border-radius: 0.2vw;
+    }
+
+    /* Estados compactos */
+    .status{
+      display:inline-flex;
+      align-items:center;
+      gap: 0.45vw;
+      font-weight: 700;
+      font-size: 0.82vw;
+      margin-left: 0.4vw;
+      white-space: nowrap;
+    }
+    .status-dot{
+      width: 0.55vw;
+      height: 0.55vw;
+      border-radius: 999px;
+      background: #bbb;
+      display:inline-block;
+    }
+    .status.ok{ color: #0a7a2b; }
+    .status.ok .status-dot{ background: #0a7a2b; }
+    .status.bad{ color: #b00020; }
+    .status.bad .status-dot{ background: #b00020; }
+
+    /* Nota (solo cuando haga falta) */
+    .info-note{
+      border-left: 0.32vw solid var(--yellow);
+      background: #f0f0f0;
+      padding: 0.75vw;
+      border-radius: 0.25vw;
+      margin-top: 0.75vw;
+      font-size: 0.85vw;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1400px){
+      .info-grid{ grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
+
 <body class="page">
-  <main style="padding: 20px;">
-    <h2>Información de interés</h2>
-    <p>Sección pendiente.</p>
+  <main>
+    <section class="info-wrap">
+      <h2 class="info-title">Información</h2>
+
+      <div class="info-grid">
+        <!-- 1) Qué es AtestApp -->
+        <div class="info-card">
+          <h3><i class="fa-solid fa-circle-info"></i> Qué es AtestApp</h3>
+          <p>
+            AtestApp es una aplicación web local que funciona <strong>sin necesidad de conexión a internet</strong>,
+            pensada para ayudar en la instrucción de diligencias y atestados.
+          </p>
+          <p class="muted">
+            Nace del cansancio de echar más horas instruyendo que patrullando y de tener que tirar de un “pen” con demasiados Words.
+            Ya que SIGO no facilita la redacción de atestados ni de muchas diligencias habituales, se crea esta herramienta intentando cubrir ese hueco, pero sin querer sustituirlo.
+          </p>
+          <p class="muted">
+            Está orientada a personal de <strong>Puestos ordinarios</strong> y también puede ser útil para personal de <strong>ATC</strong>, simplificando procesos repetitivos
+            que consumen demasiado tiempo.
+          </p>
+        </div>
+
+        <!-- 2) Feedback y colaboración -->
+        <div class="info-card">
+          <h3><i class="fa-solid fa-comments"></i> Feedback y colaboración</h3>
+          <p>
+            El proyecto está publicado en GitHub. Ahí se centralizan los reportes de errores y las propuestas de mejora.
+          </p>
+          <p class="muted">
+            GitHub es un portal de desarrollo. Si el nombre no te sonaba antes de verlo aquí, mejor no lo uses.
+            Más adelante se añadirá un método más simple para enviar feedback desde la propia app o un correo de contacto.
+          </p>
+
+          <div class="info-note">
+            Pendiente de implementar un formulario de feedback o un correo de contacto.
+          </div>
+
+          <div class="card-actions">
+            <button class="info-btn" type="button" id="btnRepo" disabled>
+              <i class="fa-brands fa-github"></i> Ver repositorio
+            </button>
+            <button class="info-btn" type="button" id="btnIssues" disabled>
+              <i class="fa-solid fa-bug"></i> Crear issue
+            </button>
+            <button class="info-btn" type="button" id="btnFeedbackForm" disabled title="Pendiente de implementar">
+              <i class="fa-solid fa-envelope"></i> Feedback
+            </button>
+          </div>
+        </div>
+
+        <!-- 3) Estado actual y actualizaciones -->
+        <div class="info-card">
+          <h3><i class="fa-solid fa-road"></i> Estado actual y actualizaciones</h3>
+          <p>
+            Actualmente solo está disponible para trabajar la <strong>diligencia libre</strong>.
+          </p>
+          <p class="muted">
+            Pendiente de implementar plantillas para carátula, anexos, inspección ocular, lectura de derechos,
+            y atestados tipo (VioGén, VioDom, detenido genérico, requisitoriado, investigado por tráfico...), entre otros.
+          </p>
+
+          <div class="info-note">
+            <strong>Importante</strong>. Aunque las descargas y actualizaciones desde GitHub son seguras si se realizan desde el
+            <strong>repositorio oficial</strong>, <strong>no es recomendable hacerlas desde ordenadores corporativos</strong>
+            por si pudiera suponer un incumplimiento de la normativa interna.
+            <br><br>
+            Lo recomendable es <strong>descargar la app en un equipo propio</strong> y, si necesitas llevarla al equipo corporativo,
+            hacerlo mediante <strong>memoria externa</strong> (USB).
+            <br><br>
+            En caso de dudas, se trata de un proyecto <strong>de código abierto</strong> es posible revisar el contenido y su comportamiento
+            antes de usarlo.
+          </div>
+
+          <div class="card-actions">
+            <button class="info-btn" type="button" id="btnReleases" disabled>
+              <i class="fa-solid fa-tag"></i> Ver versiones
+            </button>
+          </div>
+        </div>
+
+        <!-- 4) Internet -->
+        <div class="info-card">
+          <h3>
+            <i class="fa-solid fa-wifi"></i> Internet
+            <span id="netStatus" class="status" title="">
+              <span class="status-dot"></span>
+              <span id="netLabel">comprobando</span>
+            </span>
+          </h3>
+
+          <p>
+            Para redactar, guardar, cargar y generar el PDF no hace falta internet.
+          </p>
+
+          <p class="muted">
+            La conexión solo se usa para abrir GitHub y para comprobar si existe una versión nueva.
+            Si no hay conexión, esos botones se desactivan. El resto de la aplicación sigue funcionando igual.
+          </p>
+
+          <p class="info-note">
+            <strong>Nota:</strong> el indicador “Conectado/Sin conexión” es orientativo. Puede mostrar “conectado” aunque la red no permita
+            navegar o acceder a GitHub (por ejemplo, una Wi-Fi que obliga a iniciar sesión, o una red con restricciones).
+            En entornos corporativos también puede fallar por <strong>VPN, proxy o firewall</strong> que bloqueen salidas a internet
+            o exijan autenticación (usuario/contraseña) por auditoría.
+          </p>
+
+          <div class="info-note">
+            Si quieres confirmarlo, puedes usar el botón de abajo. Realiza una comprobación puntual contra GitHub para verificar
+            si hay salida real. <strong>No envía datos de la app ni del atestado</strong>; únicamente intenta acceder a un recurso público (el repositorio).
+          </div>
+
+          <div class="card-actions">
+            <button class="info-btn" type="button" id="btnCheckConn">
+              <i class="fa-solid fa-signal"></i> Comprobar conexión real
+            </button>
+          </div>
+        </div>        
+        <!-- 5) Transparencia técnica -->
+        <div class="info-card">
+          <h3><i class="fa-solid fa-code"></i> Transparencia técnica</h3>
+
+          <ul>
+            <li><strong>Código abierto</strong>. El proyecto es <i>open source</i> y puede revisarse en el repositorio.</li>
+            <li><strong>Funcionamiento visible</strong>. No hay procesos ocultos ni componentes que envíen información fuera de la app.</li>
+            <li>
+              <strong>Desarrollo asistido por IA</strong>. El desarrollo lo realiza una persona que no se dedica profesionalmente a la programación,
+              por eso se apoya en herramientas de IA (principalmente ChatGPT). Como consecuencia, la organización del proyecto y algunos patrones
+              pueden no seguir estándares típicos de proyectos profesionales.
+            </li>
+            <li><strong>Versiones e historial</strong>. En GitHub quedan registradas las versiones publicadas y los cambios entre versiones.</li>
+            <li><strong>Mejoras técnicas</strong>. Se agradecen aportes en rendimiento, organización, validaciones y maquetación/impresión.</li>
+            <li><strong>Cómo contribuir</strong>. Las mejoras se pueden proponer como <i>issue</i> o aportarse directamente mediante <i>pull request</i>.</li>
+          </ul>
+        </div>
+
+        <!-- 6) Privacidad y almacenamiento -->
+        <div class="info-card">
+          <h3><i class="fa-solid fa-shield-halved"></i> Privacidad y almacenamiento</h3>
+
+          <ul>
+            <li><strong>Sin envío de datos</strong>. AtestApp no envía a internet el contenido que redactas. No hay servidor, cuentas, registro de usuarios ni analítica.</li>
+            <li><strong>Datos sensibles</strong>. La información introducida (detenidos, víctimas, testigos, teléfonos, direcciones, hechos, etc.) queda en el navegador y en tu equipo.</li>
+            <li><strong>Única conexión externa</strong>. Solo se consulta GitHub para comprobar si existe una versión nueva. Esa consulta no incluye datos personales ni el texto de tus diligencias.</li>
+            <li><strong>Dónde se guarda</strong>. Se guarda en el almacenamiento local del navegador para continuar el trabajo, y en archivos <code class="inline">.json</code> cuando exportas/descargas para conservarlos o moverlos a otro equipo.</li>
+            <li><strong>Enfoque RGPD/LOPDGDD</strong>. No hay tratamiento centralizado ni cesión a terceros. Aun así, controla el acceso al equipo y a los <code class="inline">.json</code> (son documentos con datos personales).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <script>
+    (function(){
+      // GitHub URLs
+      const URL_REPO     = 'https://github.com/BraisL/AtestAPP';
+      const URL_ISSUES   = 'https://github.com/BraisL/AtestAPP/issues/new/choose';
+      const URL_RELEASES = 'https://github.com/BraisL/AtestAPP/releases';
+
+      // Ping (público) para comprobar salida real a GitHub
+      const URL_PING = 'https://raw.githubusercontent.com/BraisL/AtestAPP/main/README.md';
+
+      // UI refs (estado)
+      const netStatus = document.getElementById('netStatus');
+      const netLabel  = document.getElementById('netLabel');
+
+      // Botones GitHub
+      const btnRepo     = document.getElementById('btnRepo');
+      const btnIssues   = document.getElementById('btnIssues');
+      const btnReleases = document.getElementById('btnReleases');
+
+      // Botón opcional: comprobar conexión real
+      const btnCheckConn = document.getElementById('btnCheckConn');
+
+      function setGitHubEnabled(enabled){
+        [btnRepo, btnIssues, btnReleases].forEach(b => {
+          if (!b) return;
+          b.disabled = !enabled;
+          b.title = enabled ? 'Abrir en el navegador' : 'Requiere conexión a internet';
+        });
+        if (btnCheckConn) {
+          btnCheckConn.disabled = false; // el botón de comprobar siempre usable, salvo cuando “está comprobando”
+        }
+      }
+
+      function setNetUI(ok, label, title){
+        if (!netStatus || !netLabel) return;
+        netStatus.classList.remove('ok','bad');
+        netStatus.classList.add(ok ? 'ok' : 'bad');
+        netLabel.textContent = label;
+        netStatus.title = title || '';
+        setGitHubEnabled(ok);
+      }
+
+      // Estado rápido (orientativo) basado en navigator.onLine
+      function refreshNet(){
+        const online = navigator.onLine;
+
+        if (!online) {
+          setNetUI(false, 'Sin conexión', 'Sin conexión a internet (según el navegador)');
+          return;
+        }
+
+        // Puede ser falso positivo -> lo dejamos marcado como “orientativo”
+        setNetUI(true, 'Conectado (orientativo)', 'El navegador indica conexión, pero puede no haber salida real');
+      }
+
+      async function checkConexionReal({ timeoutMs = 2500 } = {}){
+        if (!navigator.onLine) return false;
+
+        const controller = new AbortController();
+        const t = setTimeout(() => controller.abort(), timeoutMs);
+
+        try{
+          const res = await fetch(URL_PING, {
+            method: 'HEAD',
+            cache: 'no-store',
+            signal: controller.signal,
+          });
+          // Con que responda ya hay salida (aunque sea 404/403 por algo raro, sigue siendo salida real)
+          return !!res && (res.ok || (res.status >= 200 && res.status < 500));
+        }catch(_){
+          return false;
+        }finally{
+          clearTimeout(t);
+        }
+      }
+
+      function openUrl(url){
+        window.open(url, '_blank', 'noopener');
+      }
+
+      btnRepo?.addEventListener('click', () => { if (!btnRepo.disabled) openUrl(URL_REPO); });
+      btnIssues?.addEventListener('click', () => { if (!btnIssues.disabled) openUrl(URL_ISSUES); });
+      btnReleases?.addEventListener('click', () => { if (!btnReleases.disabled) openUrl(URL_RELEASES); });
+
+      btnCheckConn?.addEventListener('click', async () => {
+        // Evita doble click
+        btnCheckConn.disabled = true;
+
+        const oldHTML = btnCheckConn.innerHTML;
+        btnCheckConn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Comprobando…';
+
+        const ok = await checkConexionReal({ timeoutMs: 2500 });
+
+        if (ok) {
+          setNetUI(true, 'Conectado (confirmado)', 'Conexión real confirmada (acceso a GitHub)');
+        } else {
+          setNetUI(false, 'Sin conexión (confirmado)', 'No hay salida real a GitHub');
+        }
+
+        btnCheckConn.innerHTML = oldHTML;
+        btnCheckConn.disabled = false;
+      });
+
+      window.addEventListener('online', refreshNet);
+      window.addEventListener('offline', refreshNet);
+
+      refreshNet();
+    })();
+  </script>
   <script src="../js/iframe_autoaltura.js"></script>
 </body>
 </html>

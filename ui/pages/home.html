@@ -1,28 +1,342 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AtestAPP - Inicio</title>
-  <link rel="stylesheet" href="../css/style.css">
+
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css">
+
+  <style>
+    .home-wrap{
+      max-width: 81vw;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    .home-title{
+      margin: 0.83em 0 0.35em 0;
+    }
+
+    .home-lead{
+      margin: 0.15vw 0 1vw 0;
+      line-height: 1.45;
+      opacity: 0.95;
+      font-size: 0.92vw;
+    }
+    .home-lead a{
+      color: var(--dark-green);
+      text-decoration: underline;
+      font-weight: 700;
+    }
+
+    .home-card{
+      border: 0.15vw solid #ccc;
+      border-radius: 0.25vw;
+      padding: 1vw;
+      background: #fff;
+      box-sizing: border-box;
+    }
+
+    .quick-title{
+      margin: 0 0 0.65vw 0;
+      font-size: 1.1vw;
+      letter-spacing: .2px;
+    }
+
+    .quick-grid{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1vw;
+      margin-top: 0.8vw;
+    }
+
+    .quick-tile{
+      display:block;
+      text-decoration:none;
+      color: inherit;
+      border: 0.15vw solid #ccc;
+      border-radius: 0.25vw;
+      background:#fff;
+      padding: 0.9vw;
+      transition: transform .12s ease, filter .12s ease;
+      min-height: 6.9vw;
+    }
+    .quick-tile:hover{
+      transform: translateY(-0.08vw);
+      filter: brightness(0.985);
+    }
+
+    .quick-tile.disabled{
+      opacity: 0.55;
+      cursor: not-allowed;
+      pointer-events: none;
+      filter: grayscale(0.25);
+    }
+
+    .tile-top{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 0.8vw;
+    }
+
+    .tile-title{
+      margin: 0;
+      font-size: 1vw;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .tile-ico{
+      font-size: 1.35vw;
+      opacity: 0.9;
+      color: var(--dark-green);
+    }
+
+    .tile-desc{
+      margin: 0.55vw 0 0 0;
+      line-height: 1.35;
+      font-size: 0.88vw;
+      opacity: 0.95;
+    }
+
+    /* Badge de estado (tipo “pill”) */
+    .tile-badges{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 0.45vw;
+      margin-top: 0.6vw;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 0.45vw;
+      border: 0.15vw solid rgba(0,0,0,0.12);
+      border-radius: 999px;
+      padding: 0.25vw 0.55vw;
+      background: rgba(0,0,0,0.02);
+      font-size: 0.78vw;
+      white-space: nowrap;
+      opacity: 0.95;
+    }
+
+    .dot{
+      width: 0.5vw;
+      height: 0.5vw;
+      border-radius: 999px;
+      background: #bbb;
+      display:inline-block;
+    }
+
+    .badge.ok{
+      border-color: rgba(10,122,43,0.35);
+      background: rgba(10,122,43,0.06);
+      color: #0a7a2b;
+    }
+    .badge.ok .dot{ background: #0a7a2b; }
+
+    .badge.bad{
+      border-color: rgba(176,0,32,0.35);
+      background: rgba(176,0,32,0.06);
+      color: #b00020;
+    }
+    .badge.bad .dot{ background: #b00020; }
+
+    .split{
+      grid-column: 1 / -1;
+      height: 1px;
+      background: rgba(0,0,0,0.10);
+      margin: 0.2vw 0;
+    }
+
+    @media (max-width: 1400px){
+      .quick-grid{ grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
 </head>
+
 <body class="page">
   <main>
-    <section class="home-content">
-      <h2>Bienvenido a la aplicación AtestAPP</h2>
+    <section class="home-wrap">
+      <h2 class="home-title">Inicio</h2>
 
-    </section>
-    <section class="quick-access">
-      <h2>Acceso Rápido</h2>
-      <div class="quick-buttons">
-        <button>RÁPIDO 1</button>
-        <button>RÁPIDO 2</button>
-        <button>RÁPIDO 3</button>
-        <button>RÁPIDO 4</button>
-        <button>RÁPIDO 5</button>
+      <p class="home-lead">
+        Bienvenido a AtestApp.
+        <br>Si es tu primera vez aquí, es recomendable leer el <strong>manual en PDF</strong> incluido junto con la aplicación, que recoge las dudas frecuentes y las instrucciones para su uso.
+        <br>Además puedes hacer click en el acceso rápido a la pestaña de información para poder leer un resumen del funcionamiento de la aplicación.
+      </p>
+
+      <div class="home-card">
+        <h3 class="quick-title">Acceso rápido</h3>
+
+        <div class="quick-grid">
+          <!-- Fila 1 -->
+          <a class="quick-tile" href="./info.html" id="tileInfo" title="Información">
+            <div class="tile-top">
+              <h4 class="tile-title">Información</h4>
+              <i class="tile-ico fa-solid fa-circle-info"></i>
+            </div>
+            <p class="tile-desc">Privacidad, transparencia, funcionamiento y notas del proyecto.</p>
+          </a>
+
+          <a class="quick-tile" href="https://github.com/BraisL/AtestAPP/issues/new/choose" id="tileIssue" target="_blank" rel="noopener" title="Crear issue en GitHub">
+            <div class="tile-top">
+              <h4 class="tile-title">Crear issue</h4>
+              <i class="tile-ico fa-solid fa-bug"></i>
+            </div>
+            <p class="tile-desc">Reportar errores o solicitar mejoras.</p>
+            <p class="title-desc"><i>Si no conoces GitHub, ignora este botón.</i></p>
+          </a>
+
+          <a class="quick-tile disabled" href="#" id="tileFeedback" title="Pendiente">
+            <div class="tile-top">
+              <h4 class="tile-title">Feedback</h4>
+              <i class="tile-ico fa-solid fa-envelope"></i>
+            </div>
+            <p class="tile-desc">Formulario para reportar errores, solicitar mejoras/implementaciones... para quien no sabe usar GitHub</p>
+          </a>
+
+          <a class="quick-tile" href="https://github.com/BraisL/AtestAPP" id="tileRepo" target="_blank" rel="noopener" title="Repositorio">
+            <div class="tile-top">
+              <h4 class="tile-title">Repositorio</h4>
+              <i class="tile-ico fa-brands fa-github"></i>
+            </div>
+            <p class="tile-desc">Código, versiones y cambios publicados.</p>
+            <p class="title-desc"><i>Si no conoces GitHub, ignora este botón.</i></p>
+          </a>
+
+          <div class="split"></div>
+
+          <!-- Fila 2 -->
+          <a class="quick-tile" href="./unidad.html" id="tileUnidad" title="Datos de unidad">
+            <div class="tile-top">
+              <h4 class="tile-title">Datos unidad</h4>
+              <i class="tile-ico fa-solid fa-building-shield"></i>
+            </div>
+            <p class="tile-desc" id="unidadDesc">Configura y guarda los datos de tu unidad.</p>
+
+            <div class="tile-badges">
+              <span class="badge" id="badgeUnit">
+                <span class="dot"></span>
+                <i class="fa-solid fa-id-card"></i>
+                <span id="unitTxt">Comprobando...</span>
+              </span>
+            </div>
+          </a>
+
+          <a class="quick-tile" href="./diligencialibre.html" id="tileDL" title="Diligencia libre">
+            <div class="tile-top">
+              <h4 class="tile-title">Diligencia libre</h4>
+              <i class="tile-ico fa-solid fa-file-lines"></i>
+            </div>
+            <p class="tile-desc">Redacción libre, fácil y rápida de usar para imprimir casi cualquier diligencia.</p>
+          </a>
+
+          <a class="quick-tile disabled" href="#" id="tileCustom1" title="Pendiente">
+            <div class="tile-top">
+              <h4 class="tile-title">Personalizado 1</h4>
+              <i class="tile-ico fa-solid fa-star"></i>
+            </div>
+            <p class="tile-desc">Atajo configurable (pendiente).</p>
+          </a>
+
+          <a class="quick-tile disabled" href="#" id="tileCustom2" title="Pendiente">
+            <div class="tile-top">
+              <h4 class="tile-title">Personalizado 2</h4>
+              <i class="tile-ico fa-solid fa-star"></i>
+            </div>
+            <p class="tile-desc">Atajo configurable (pendiente).</p>
+          </a>
+        </div>
       </div>
     </section>
   </main>
+
+  <script>
+    (function () {
+      const badgeUnit  = document.getElementById('badgeUnit');
+      const unitTxt    = document.getElementById('unitTxt');
+      const unidadDesc = document.getElementById('unidadDesc');
+
+      const tileIssue = document.getElementById('tileIssue');
+      const tileRepo  = document.getElementById('tileRepo');
+
+      function leerUnidad() {
+        const claves = ['datosUnidad', 'unitData'];
+        for (const k of claves) {
+          const raw = localStorage.getItem(k);
+          if (!raw) continue;
+          try { return JSON.parse(raw); } catch (_) { return null; }
+        }
+        return null;
+      }
+
+      function setBadge(el, ok) {
+        if (!el) return;
+        el.classList.remove('ok', 'bad');
+        el.classList.add(ok ? 'ok' : 'bad');
+      }
+
+      function preventOnce(e){ e.preventDefault(); e.stopPropagation(); }
+
+      function setTileEnabled(a, enabled) {
+        if (!a) return;
+        a.classList.toggle('disabled', !enabled);
+        if (!enabled) {
+          a.setAttribute('aria-disabled', 'true');
+          a.dataset.prevTitle = a.title || '';
+          a.title = 'Requiere conexión a internet';
+          a.addEventListener('click', preventOnce, { once: true });
+        } else {
+          a.removeAttribute('aria-disabled');
+          if (a.dataset.prevTitle) a.title = a.dataset.prevTitle;
+        }
+      }
+
+      function refreshNet() {
+        const online = navigator.onLine;
+
+        // GitHub: deshabilitar si no hay conexión
+        setTileEnabled(tileIssue, online);
+        setTileEnabled(tileRepo, online);
+      }
+
+      function refreshUnit() {
+        const u = leerUnidad();
+        const ok = !!u;
+
+        setBadge(badgeUnit, ok);
+
+        if (!ok) {
+          unitTxt.textContent = 'Sin unidad';
+          unidadDesc.textContent = 'No hay datos cargados. Si deseas cargarlos, puedes hacerlo aquí.';
+          return;
+        }
+
+        unitTxt.textContent = 'Unidad cargada';
+
+        // Nombre (si existe) solo para contexto, sin repetirlo en el badge
+        const nombre = [
+          (u.tipopuesto || '').trim(),
+          (u.nombreunidad || '').trim()
+        ].filter(Boolean).join(' ').trim();
+
+        unidadDesc.textContent = nombre
+          ? 'Hay datos cargados. Si deseas modificarlos, puedes hacerlo aquí.'
+          : 'Hay datos cargados. Si deseas modificarlos, puedes hacerlo aquí.';
+      }
+
+      window.addEventListener('online', refreshNet);
+      window.addEventListener('offline', refreshNet);
+
+      refreshNet();
+      refreshUnit();
+    })();
+  </script>
+
   <script src="../js/iframe_autoaltura.js"></script>
 </body>
 </html>

@@ -1,61 +1,29 @@
-# ATESTAPP — V0
+# AtestApp
 
-Aplicación web local (offline) para la redacción y generación de atestados y documentos policiales.
+Aplicación web local (offline) para redactar diligencias y documentos policiales en España, pensada para ahorrar tiempo, reducir errores y unificar formato en la redacción.
 
-- **Sin backend**: se ejecuta abriendo `index.html`.
-- **Navegadores**: Chrome / Edge.
-- **Persistencia**: `localStorage` + exportación/importación en **JSON**.
+Se ejecuta abriendo `index.html`. La salida final se obtiene mediante el diálogo de impresión del navegador, pudiendo guardarse como PDF.
 
-## Funcionalidades incluidas (V0)
+## Objetivo
 
-### Shell (aplicación principal)
-- Cabecera con **nombre de unidad** y **reloj** (hora + fecha en tiempo real).
-- Menú de navegación que carga páginas internas en un **iframe**.
-- Autoajuste de la altura del iframe para evitar scroll interno.
+Facilitar la labor instructora con una herramienta ligera y portable que permita:
+- Redactar documentos con un formato consistente.
+- Reutilizar datos para no repetir información.
+- Generar PDFs listos para imprimir o archivar.
+- Exportar e importar casos/diligencias en JSON para copias de seguridad y traslado entre equipos.
 
-### Datos de la unidad
-- Formulario para:
-  - Comandancia, Compañía, Tipo de puesto, Nombre del puesto.
-  - Dirección, Localidad, Provincia, Código postal, Teléfono, Correo.
-- Acciones:
-  - **Guardar** en `localStorage`.
-  - **Borrar** datos guardados.
-  - **Descargar** los datos en un archivo `.json`.
-  - **Cargar** los datos desde un archivo `.json`.
-- La cabecera se actualiza automáticamente al guardar/borrar.
+## Qué incluye actualmente
 
-### Diligencias
-- **Diligencia libre**:
-  - Campos: nº de atestado, folio, nombre de diligencia (obligatorio) y texto.
-  - Render sobre plantilla (`ui/assets/diligencia_base.png`).
-  - **Previsualización** opcional.
-  - **Impresión a PDF** usando el diálogo del navegador.
-  - **Paginado automático**: si el texto no cabe, genera páginas adicionales.
-  - **Exportar** la diligencia a `.json` y **cargar** desde `.json`.
-- **Diligencia libre sin datos**: igual que la anterior, pero **sin insertar datos de unidad** en el pie.
+- Datos de unidad guardables en el equipo y export/import en JSON.
+- Diligencia libre con paginación automática al imprimir.
+- Elementos añadidos gestionados aparte del texto (por ejemplo TIPs, filiaciones y cierres) que se imprimen en su lugar correspondiente.
+- Descarga/carga de diligencias en JSON manteniendo compatibilidad con archivos antiguos.
 
-### Secciones en preparación (placeholder)
-- Atestado Tipo 1 / Tipo 2 / Tipo 3.
-- Documentos.
-- Información de interés.
+## Requisitos
 
-## Persistencia y compatibilidad
-- La clave principal de `localStorage` para la unidad es `datosUnidad`.
-- Por compatibilidad, también se lee/escribe la clave antigua `unitData`.
+- Navegador: Chrome.
+- No requiere instalación ni conexión a internet para trabajar.
 
-## Estructura del proyecto
-- `index.html` — shell (cabecera, menú e iframe).
-- `ui/css/style.css` — estilos globales.
-- `ui/js/`:
-  - `utilidades.js` — helpers comunes.
-  - `shell.js` — navegación, reloj y cabecera.
-  - `unidad.js` — gestión de datos de unidad.
-  - `diligencialibre.js` — diligencia libre (con y sin datos).
-- `ui/pages/` — páginas internas.
-- `ui/assets/` — recursos (plantillas).
+## Privacidad
 
-## Uso rápido
-1. Abrir `index.html`.
-2. Ir a **Unidad** y guardar/cargar los datos.
-3. Ir a **Diligencias → Diligencia libre** y redactar.
-4. Pulsar **IMPRIMIR (PDF)** → “Guardar como PDF”.
+No se envía información a ningún servidor. Los datos se guardan localmente en el navegador y/o en archivos JSON exportados por el usuario.

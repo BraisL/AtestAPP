@@ -6,9 +6,9 @@
   const CLAVE_DATOS_UNIDAD = U?.CLAVES_LOCALSTORAGE?.DATOS_UNIDAD || 'datosUnidad';
 
   const REMOTE_VERSION_URLS = [
+    'https://raw.githubusercontent.com/BraisL/AtestAPP/main/ui/js/version.js',
     'https://cdn.jsdelivr.net/gh/BraisL/AtestAPP@main/ui/js/version.js',
-    'https://raw.githack.com/BraisL/AtestAPP/main/ui/js/version.js',
-    'https://raw.githubusercontent.com/BraisL/AtestAPP/main/ui/js/version.js'
+    'https://raw.githack.com/BraisL/AtestAPP/main/ui/js/version.js'
   ];
 
   function parseSemver(v) {

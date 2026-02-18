@@ -34,6 +34,42 @@ body {
     color: var(--dark-green);
 }
 
+/* =========================
+   FUENTES LOCALES (offline)
+   ========================= */
+
+/* Montserrat (variable) */
+@font-face{
+    font-family: "Montserrat";
+    src: url("../vendor/Montserrat/Montserrat-VariableFont_wght.ttf") format("truetype");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face{
+    font-family: "Montserrat";
+    src: url("../vendor/Montserrat/Montserrat-Italic-VariableFont_wght.ttf") format("truetype");
+    font-weight: 100 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* Roboto Mono (variable) */
+@font-face{
+    font-family: "Roboto Mono";
+    src: url("../vendor/Roboto_Mono/RobotoMono-VariableFont_wght.ttf") format("truetype");
+    font-weight: 100 700;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face{
+    font-family: "Roboto Mono";
+    src: url("../vendor/Roboto_Mono/RobotoMono-Italic-VariableFont_wght.ttf") format("truetype");
+    font-weight: 100 700;
+    font-style: italic;
+    font-display: swap;
+}
+
 /* =======================
     2) LAYOUT GLOBAL (DESKTOP)
    ======================= */
@@ -134,8 +170,8 @@ header {
 .header-icons a {
     color: var(--white);
     font-size: 1.5vw;
-    margin-left: 0.75vw;
-    margin-right: 0.75vw;
+    margin-left: 0.5vw;
+    margin-right: 0.5vw;
 }
 
 /* =======================
@@ -340,7 +376,11 @@ body.page main { padding: 0vw; }
 button#btnFiliCancelar,
 button#btnImprimir,
 #btnDownloadJson,
-button#btnFiliGuardar {
+button#btnFiliGuardar,
+button#btnFiliDescargar,
+button#btnFiliCargar,
+button#predefCustomCancel,
+button#predefCustomOk {
     transition: background-color 0.2s ease, color 0.2s ease, filter 0.2s ease;
 }
 
@@ -348,7 +388,10 @@ button#btnFiliGuardar {
 #download-btn,
 button#btnImprimir,
 #btnDownloadJson,
-button#btnFiliGuardar {
+button#btnFiliGuardar,
+button#btnFiliDescargar,
+button#btnFiliCargar,
+button#predefCustomOk {
     background-color: var(--dark-green);
     color: var(--white);
 }
@@ -357,19 +400,24 @@ button#btnFiliGuardar {
 #download-btn:hover,
 button#btnImprimir:hover,
 #btnDownloadJson:hover,
-button#btnFiliGuardar:hover {
+button#btnFiliGuardar:hover,
+button#btnFiliDescargar:hover,
+button#btnFiliCargar:hover,
+button#predefCustomOk:hover {
     background-color: var(--yellow);
     color: var(--dark-green);
 }
 
 #delete-btn,
-button#btnFiliCancelar {
+button#btnFiliCancelar,
+button#predefCustomCancel {
     background-color: var(--dark-red);
     color: var(--white);
 }
 
 #delete-btn:hover,
-button#btnFiliCancelar:hover {
+button#btnFiliCancelar:hover,
+button#predefCustomCancel:hover {
     background-color: var(--red);
     color: var(--white);
 }

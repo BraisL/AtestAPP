@@ -7,7 +7,6 @@
 
   const REMOTE_VERSION_URLS = [
     'https://raw.githubusercontent.com/BraisL/AtestAPP/main/ui/js/version.js',
-    'https://cdn.jsdelivr.net/gh/BraisL/AtestAPP@main/ui/js/version.js',
     'https://raw.githack.com/BraisL/AtestAPP/main/ui/js/version.js'
   ];
 
@@ -31,14 +30,12 @@
   }
 
   function getLocalVersionFallback() {
-    // Compatibilidad con versiones antiguas que usaban data-app-version en el HTML.
     const el = document.getElementById('version');
     const v = el?.dataset?.appVersion ? String(el.dataset.appVersion).trim() : '';
     return v || '0.0.0';
   }
 
   function renderHeaderTitleVersion(localVersion) {
-    // Inserta dinámicamente un "vX.X.X" junto a "AtestApp" en el header (sin tocar HTML).
     const host = document.querySelector('.header-center');
     if (!host) return;
 
@@ -60,16 +57,13 @@
   }
 
   function renderVersionUI(localVersion, latestVersionOrNull) {
-    // Aquí SOLO mostramos la info de actualización (la versión local va al lado del header).
     const el = document.getElementById('version');
     if (!el) return;
 
     if (latestVersionOrNull) {
       const latest = String(latestVersionOrNull).trim();
-      el.innerHTML =
-        `<span id="version-update">Versión ${latest} disponible</span>`;
+      el.innerHTML = `<span id="version-update">Versión ${latest} disponible</span>`;
     } else {
-      // Sin actualización: limpiar área (evita duplicar info con el header).
       el.textContent = '';
     }
   }
@@ -100,7 +94,6 @@
     a.title = `Descargar actualización v${latest.version}`;
     a.style.display = 'inline-block';
 
-    // Asegura que queda justo a la derecha de "Versión X disponible"
     host.insertAdjacentElement('afterend', a);
   }
 
@@ -121,64 +114,90 @@
     a.title = latest.notes ? latest.notes : `Nueva versión: v${latest.version}`;
   }
 
+  // --------- MEJORAS A) y B) ---------
+
+  function looksLikeVersionManifest(jsText) {
+    const t = String(jsText || '').trim();
+    if (!t) return false;
+
+    // Cortafuegos contra portales cautivos / HTML / errores
+    if (t.startsWith('<!doctype') || t.startsWith('<html') || t.startsWith('<HTML')) return false;
+
+    // Heurística: el manifest debe tocar ATESTAPP_LATEST y tener "version"
+    if (!/ATESTAPP_LATEST/.test(t)) return false;
+    if (!/version\s*[:=]/i.test(t)) return false;
+
+    return true;
+  }
+
+  function cleanupOldRemoteMarkers() {
+    // Por si en algún momento se volvió a la técnica de <script> y quedaron restos:
+    // No rompe nada si no existen.
+    document.querySelectorAll('script[data-atestapp-remote="1"]').forEach(s => {
+      try { s.remove(); } catch (_) {}
+    });
+  }
+
   function loadRemoteManifest(localSnapshot, cb) {
-    // Para evitar falsos positivos (porque ya existe ATESTAPP_LATEST local),
-    // vaciamos el global antes de cargar el remoto y restauramos si todo falla.
     try { window.ATESTAPP_LATEST = undefined; } catch (_) {}
 
     let i = 0;
+    cleanupOldRemoteMarkers();
 
     const tryNext = () => {
       if (i >= REMOTE_VERSION_URLS.length) {
-        // Restaurar el local para no dejar el global en undefined
         if (localSnapshot) window.ATESTAPP_LATEST = localSnapshot;
         return cb && cb(new Error('No se pudo cargar un manifest remoto válido'), null);
       }
 
       const baseUrl = REMOTE_VERSION_URLS[i++];
-      const src = baseUrl + (baseUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
 
-      const s = document.createElement('script');
-      s.src = src;
-      s.async = true;
+      // cache-busting + sin caché del navegador
+      const url = baseUrl + (baseUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
 
-      s.onload = () => {
-        const latest = window.ATESTAPP_LATEST;
-        if (latest && typeof latest === 'object' && latest.version) {
-          return cb && cb(null, latest);
-        }
-        console.warn('[AtestApp] Manifest remoto sin ATESTAPP_LATEST.version:', baseUrl);
-        tryNext();
-      };
+      fetch(url, { cache: 'no-store' })
+        .then(r => r.ok ? r.text() : Promise.reject(new Error('HTTP ' + r.status)))
+        .then(js => {
+          // Debug útil para pillar HTML de portal cautivo
+          console.log('[AtestApp] version.js remoto recibido (primeros 120 chars):', String(js).slice(0, 120));
 
-      s.onerror = () => {
-        console.warn('[AtestApp] No se pudo cargar version.js:', src);
-        tryNext();
-      };
+          // MEJORA A: validar antes de eval
+          if (!looksLikeVersionManifest(js)) {
+            console.warn('[AtestApp] Respuesta remota no parece un manifest válido (posible portal cautivo/bloqueo):', baseUrl);
+            return tryNext();
+          }
 
-      document.head.appendChild(s);
+          // Ejecuta el JS remoto en el contexto actual
+          (0, eval)(js);
+
+          const latest = window.ATESTAPP_LATEST;
+          if (latest && typeof latest === 'object' && latest.version) {
+            return cb && cb(null, latest);
+          }
+
+          console.warn('[AtestApp] Manifest remoto sin ATESTAPP_LATEST.version:', baseUrl);
+          tryNext();
+        })
+        .catch(err => {
+          console.warn('[AtestApp] No se pudo cargar manifest remoto:', baseUrl, err);
+          tryNext();
+        });
     };
 
     tryNext();
   }
 
   function checkUpdates() {
-    // 1) Versión local: viene del ui/js/version.js local (incluido en index.html si lo tienes)
     const localSnapshot = safeClone(window.ATESTAPP_LATEST);
     const localVersion = (localSnapshot && localSnapshot.version)
       ? String(localSnapshot.version).trim()
       : getLocalVersionFallback();
 
-    // Mostrar SIEMPRE la versión local junto al header
     renderHeaderTitleVersion(localVersion);
-
-    // En el área de version (derecha), por defecto no mostramos nada salvo actualización
     renderVersionUI(localVersion, null);
     hideHeaderUpdateButton();
 
-    // 2) Comprobar remoto
     loadRemoteManifest(localSnapshot, (err, latest) => {
-      // Restaura siempre el snapshot local para no dejar el global pisado por el remoto
       if (localSnapshot) window.ATESTAPP_LATEST = localSnapshot;
 
       if (err || !latest || !latest.version) {
@@ -238,7 +257,6 @@
     if (elFechaHora) elFechaHora.textContent = `${hora} | ${fecha}`;
   }
 
-  // Tick alineado al segundo real
   function iniciarReloj() {
     actualizarFechaHora();
     setTimeout(function tick() {
@@ -258,7 +276,6 @@
     checkUpdates();
     actualizarNombreUnidad();
 
-    // Clics de navegación: cualquier <a data-page="..."> cambia el iframe
     document.addEventListener('click', (e) => {
       const enlace = e.target.closest && e.target.closest('a[data-page]');
       if (!enlace) return;
@@ -266,13 +283,11 @@
       cargarPagina(enlace.getAttribute('data-page'));
     });
 
-    // Solo funciona entre pestañas/ventanas distintas, pero no estorba.
     window.addEventListener('storage', (e) => {
       if (e.key === CLAVE_DATOS_UNIDAD || e.key === 'unitData') actualizarNombreUnidad();
     });
   });
 
-  // Mensajes desde el iframe (p.ej. resize o actualización de datos)
   window.addEventListener('message', (e) => {
     const datos = e.data;
     if (!datos || typeof datos.type !== 'string') return;

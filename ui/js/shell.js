@@ -130,6 +130,52 @@
     return true;
   }
 
+  function parseJsStringLiteral(token) {
+    const t = String(token || '').trim();
+    if (!t) return '';
+
+    if (t.startsWith('"') && t.endsWith('"')) {
+      try { return JSON.parse(t); } catch (_) { return ''; }
+    }
+
+    if (t.startsWith("'") && t.endsWith("'")) {
+      return t
+        .slice(1, -1)
+        .replace(/\\\\/g, '\\')
+        .replace(/\\'/g, "'");
+    }
+
+    return '';
+  }
+
+  function escapeRegExp(s) {
+    return String(s || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function extraerCampoCadena(jsText, fieldName) {
+    const key = escapeRegExp(fieldName);
+    const re = new RegExp(`(?:^|[\\s,{])${key}\\s*:\\s*("(?:\\\\.|[^"\\\\])*"|'(?:\\\\.|[^'\\\\])*')`, 'i');
+    const m = String(jsText || '').match(re);
+    if (!m) return '';
+    return parseJsStringLiteral(m[1]);
+  }
+
+  function parseVersionManifest(jsText) {
+    const latest = {
+      version: extraerCampoCadena(jsText, 'version'),
+      releasedAt: extraerCampoCadena(jsText, 'releasedAt'),
+      downloadUrl: extraerCampoCadena(jsText, 'downloadUrl'),
+      pageUrl: extraerCampoCadena(jsText, 'pageUrl'),
+      notes: extraerCampoCadena(jsText, 'notes'),
+    };
+
+    if (!latest.version) return null;
+    if (!latest.downloadUrl && !latest.pageUrl) {
+      latest.pageUrl = 'https://github.com/BraisL/AtestAPP/releases/latest';
+    }
+    return latest;
+  }
+
   function cleanupOldRemoteMarkers() {
     // Por si en algún momento se volvió a la técnica de <script> y quedaron restos:
     // No rompe nada si no existen.
@@ -138,15 +184,12 @@
     });
   }
 
-  function loadRemoteManifest(localSnapshot, cb) {
-    try { window.ATESTAPP_LATEST = undefined; } catch (_) {}
-
+  function loadRemoteManifest(_localSnapshot, cb) {
     let i = 0;
     cleanupOldRemoteMarkers();
 
     const tryNext = () => {
       if (i >= REMOTE_VERSION_URLS.length) {
-        if (localSnapshot) window.ATESTAPP_LATEST = localSnapshot;
         return cb && cb(new Error('No se pudo cargar un manifest remoto válido'), null);
       }
 
@@ -161,21 +204,19 @@
           // Debug útil para pillar HTML de portal cautivo
           console.log('[AtestApp] version.js remoto recibido (primeros 120 chars):', String(js).slice(0, 120));
 
-          // MEJORA A: validar antes de eval
+          // Validar antes de parsear
           if (!looksLikeVersionManifest(js)) {
             console.warn('[AtestApp] Respuesta remota no parece un manifest válido (posible portal cautivo/bloqueo):', baseUrl);
             return tryNext();
           }
 
-          // Ejecuta el JS remoto en el contexto actual
-          (0, eval)(js);
-
-          const latest = window.ATESTAPP_LATEST;
+          // Parse seguro del manifest remoto (sin ejecutar código remoto)
+          const latest = parseVersionManifest(js);
           if (latest && typeof latest === 'object' && latest.version) {
             return cb && cb(null, latest);
           }
 
-          console.warn('[AtestApp] Manifest remoto sin ATESTAPP_LATEST.version:', baseUrl);
+          console.warn('[AtestApp] Manifest remoto inválido o sin version:', baseUrl);
           tryNext();
         })
         .catch(err => {
@@ -198,8 +239,6 @@
     hideHeaderUpdateButton();
 
     loadRemoteManifest(localSnapshot, (err, latest) => {
-      if (localSnapshot) window.ATESTAPP_LATEST = localSnapshot;
-
       if (err || !latest || !latest.version) {
         console.warn('[AtestApp] No hay manifest remoto válido (ATESTAPP_LATEST.version). Revisa ui/js/version.js en GitHub.');
         return;
@@ -288,7 +327,24 @@
     });
   });
 
+  function isTrustedIframeMessage(e) {
+    const marcoContenido = document.getElementById('marco-contenido');
+    if (!marcoContenido || !marcoContenido.contentWindow) return false;
+
+    const origin = String(e.origin || '');
+    const isLocalFile = window.location.protocol === 'file:';
+
+    const originOk = isLocalFile
+      ? (origin === 'null' || origin === '' || origin.startsWith('file://'))
+      : (origin === window.location.origin);
+
+    if (!originOk) return false;
+    return e.source === marcoContenido.contentWindow;
+  }
+
   window.addEventListener('message', (e) => {
+    if (!isTrustedIframeMessage(e)) return;
+
     const datos = e.data;
     if (!datos || typeof datos.type !== 'string') return;
 

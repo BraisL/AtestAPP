@@ -1,7 +1,7 @@
 window.ATESTAPP_LATEST = {
-    version: "0.0.9",
-    releasedAt: "2026-02-15",
+    version: "0.1.0",
+    releasedAt: "2026-03-14",
     downloadUrl: "https://github.com/BraisL/AtestAPP/releases/latest/download/AtestApp.zip",
     pageUrl: "https://github.com/BraisL/AtestAPP/releases/latest",
-    notes: "BETA de la 0.1.0"
+    notes: "Primera versión estable y funcional."
 };

@@ -24,7 +24,6 @@
     texto: porId('dlTexto'),
 
     tipEntrada: porId('dlTipInput'),
-    tipAnadir: porId('btnAddTip'),
     tipsDetalles: porId('tipsDetails'),
     tipsContador: porId('tipsCount'),
     tipsLista: porId('tipsList'),
@@ -516,7 +515,7 @@
   }
 
   function obtenerNodoDocError() {
-    return document.getElementById('filDocError') || document.getElementById('filiDocError');
+    return document.getElementById('filDocError');
   }
 
   function setDocError(msg) {
@@ -1130,6 +1129,8 @@
   const TAG_CIERRE_FIN = '[[/CIERRE]]';
   const TAG_CIERRE_ITEM_INI = '[[CIERRE_ITEM]]';
   const TAG_CIERRE_ITEM_FIN = '[[/CIERRE_ITEM]]';
+  // Fuerza instructora (mostrar SOLO cuando proceda; útil para repartir los bloques en varias páginas)
+  const TAG_FUERZA = '[[FUERZA]]';
 
   // “Tab” pequeño (mejor con NBSP para que sea 100% estable en impresión)
   const INDENT_PARRAFO = '\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0';
@@ -1185,6 +1186,8 @@ function pintarTextoConBloques(nodoTexto, textoPagina) {
     const cierres = [];
     const tips = [];
 
+    let forzarFuerza = false;
+
     let cierreEnItem = false;
     let cierreBuf = [];
 
@@ -1199,6 +1202,8 @@ function pintarTextoConBloques(nodoTexto, textoPagina) {
     for (const rawLine of rawLines) {
       const ln = String(rawLine ?? '');
       const t = ln.trim();
+
+      if (t === TAG_FUERZA) { forzarFuerza = true; continue; }
 
       if (t === TAG_FILI_INI) { modo = 'fili'; continue; }
       if (t === TAG_FILI_FIN) { modo = ''; continue; }
@@ -1276,23 +1281,22 @@ function pintarTextoConBloques(nodoTexto, textoPagina) {
     }
 
     // “La Fuerza Instructora” + TIPs (cajas)
-    if (tips.length) {
+    // - Antes: si había FILIACIONES/CIERRES sin TIPs, también añadía “La Fuerza Instructora” automáticamente.
+    // - Ahora: solo se añade si hay TIPs, o si llega el marcador [[FUERZA]] (para no repetirlo en cada página).
+    if (tips.length || forzarFuerza) {
       const fuerza = document.createElement('div');
       fuerza.className = 'bloque-fuerza';
       fuerza.textContent = 'La Fuerza Instructora';
       nodoTexto.appendChild(fuerza);
 
-      const contTips = document.createElement('div');
-      contTips.className = 'bloque-tips';
-      contTips.innerHTML = tips
-        .map((t) => `<span class="tip-box">${escaparHtml(t)}</span>`)
-        .join('');
-      nodoTexto.appendChild(contTips);
-    } else if (fili.length || cierres.length) {
-      const fuerza = document.createElement('div');
-      fuerza.className = 'bloque-fuerza';
-      fuerza.textContent = 'La Fuerza Instructora';
-      nodoTexto.appendChild(fuerza);
+      if (tips.length) {
+        const contTips = document.createElement('div');
+        contTips.className = 'bloque-tips';
+        contTips.innerHTML = tips
+          .map((t) => `<span class="tip-box">${escaparHtml(t)}</span>`)
+          .join('');
+        nodoTexto.appendChild(contTips);
+      }
     }
   }
 
@@ -1383,6 +1387,153 @@ function pintarTextoConBloques(nodoTexto, textoPagina) {
       }
 
       return lineas.join('\n');
+    }
+
+    // -----------------------------
+    // NUEVO: repartir “bloques finales” en varias páginas
+    // -----------------------------
+
+    function unirBaseYSufijo(base, sufijo) {
+      const b = String(base || '');
+      const s = String(sufijo || '');
+      if (!s) return b;
+      if (!b.trim()) return s.trimStart();
+      return b.trimEnd() + s;
+    }
+
+    // Cierres -> “párrafos” (tal como se imprimen en pintarTextoConBloques)
+    function normalizarCierresAParrafos(cierres) {
+      const arr = Array.isArray(cierres) ? cierres.map(normalizarCierre).filter(Boolean) : [];
+      const out = [];
+      arr.forEach((c) => {
+        const partes = String(c || '')
+          .replace(/\r\n/g, '\n')
+          .split(/\n+/)
+          .map(s => s.replace(/^[\s\u00A0]+/, '').trimEnd())
+          .filter(Boolean);
+        out.push(...partes);
+      });
+      return out;
+    }
+
+    // Construye un sufijo válido para UNA página (solo con lo que va en esa página)
+    function construirSufijoPaginaBloquesFinales(fili, cierresParrafos, tips, incluirFuerza) {
+      const arrFili = Array.isArray(fili) ? fili.map(String).filter(Boolean) : [];
+      const arrCierres = Array.isArray(cierresParrafos) ? cierresParrafos.map(String).filter(Boolean) : [];
+      const arrTips = Array.isArray(tips) ? tips.map(String).filter(Boolean) : [];
+      const fuerza = !!incluirFuerza;
+
+      if (!arrFili.length && !arrCierres.length && !arrTips.length && !fuerza) return '';
+
+      const lineas = [];
+      lineas.push('');
+      lineas.push('');
+      lineas.push(MARCADOR_BLOQUES);
+
+      if (arrFili.length) {
+        lineas.push(TAG_FILI_INI);
+        lineas.push(...arrFili);
+        lineas.push(TAG_FILI_FIN);
+      }
+
+      if (arrCierres.length) {
+        lineas.push(TAG_CIERRE_INI);
+        arrCierres.forEach((p) => {
+          lineas.push(TAG_CIERRE_ITEM_INI);
+          lineas.push(p);
+          lineas.push(TAG_CIERRE_ITEM_FIN);
+        });
+        lineas.push(TAG_CIERRE_FIN);
+      }
+
+      if (arrTips.length) {
+        lineas.push(TAG_TIPS_INI);
+        lineas.push(...arrTips);
+        lineas.push(TAG_TIPS_FIN);
+      }
+
+      // Solo en la última página con bloques
+      if (fuerza) {
+        lineas.push(TAG_FUERZA);
+      }
+
+      return lineas.join('\n');
+    }
+
+    // Reparte FILIACIONES/CIERRES/TIPS por páginas (sin tratarlos como un bloque indivisible)
+    function repartirBloquesFinalesEnPaginas(paginasBase, hojaMuestra, datos) {
+      const arrTips = Array.isArray(datos?.tips) ? datos.tips.map(normalizarTip).filter(Boolean) : [];
+      const arrFili = Array.isArray(datos?.filiaciones) ? datos.filiaciones.map(construirTextoFiliacion).filter(Boolean) : [];
+      const arrCierres = normalizarCierresAParrafos(datos?.cierres);
+
+      if (!arrTips.length && !arrFili.length && !arrCierres.length) {
+        return Array.isArray(paginasBase) && paginasBase.length ? paginasBase : [''];
+      }
+
+      const paginas = (Array.isArray(paginasBase) && paginasBase.length)
+        ? paginasBase.map((b) => ({ base: String(b || ''), fili: [], cierres: [], tips: [] }))
+        : [{ base: '', fili: [], cierres: [], tips: [] }];
+
+      let idx = paginas.length - 1; // intentar “aprovechar hueco” al final del texto
+
+      const items = [];
+      arrFili.forEach((t) => items.push({ k: 'fili', v: t }));
+      arrCierres.forEach((t) => items.push({ k: 'cierre', v: t }));
+      arrTips.forEach((t) => items.push({ k: 'tip', v: t }));
+
+      const clonarConItem = (p, item) => {
+        const out = {
+          base: p.base,
+          fili: p.fili.slice(),
+          cierres: p.cierres.slice(),
+          tips: p.tips.slice(),
+        };
+        if (item.k === 'fili') out.fili.push(item.v);
+        else if (item.k === 'cierre') out.cierres.push(item.v);
+        else if (item.k === 'tip') out.tips.push(item.v);
+        return out;
+      };
+
+      const textoConBloques = (p, incluirFuerza) => {
+        const suf = construirSufijoPaginaBloquesFinales(p.fili, p.cierres, p.tips, incluirFuerza);
+        return unirBaseYSufijo(p.base, suf);
+      };
+
+      for (const item of items) {
+        while (true) {
+          const p = paginas[idx];
+          const candidato = clonarConItem(p, item);
+          const propuesta = textoConBloques(candidato, false);
+
+          if (paginaCabeEnHoja(hojaMuestra, propuesta, idx)) {
+            paginas[idx] = candidato;
+            break;
+          }
+
+          // Si ni siquiera cabe “en limpio” y esta página está vacía de bloques, forzar para evitar bucle.
+          if (!p.fili.length && !p.cierres.length && !p.tips.length) {
+            paginas[idx] = candidato;
+            break;
+          }
+
+          // No cabe: abrir nueva página solo para continuar los bloques
+          paginas.push({ base: '', fili: [], cierres: [], tips: [] });
+          idx = paginas.length - 1;
+        }
+      }
+
+      // “La Fuerza Instructora” SOLO en la última página que tenga bloques.
+      let lastBlockIdx = -1;
+      for (let i = 0; i < paginas.length; i++) {
+        const p = paginas[i];
+        if (p.fili.length || p.cierres.length || p.tips.length) lastBlockIdx = i;
+      }
+
+      return paginas.map((p, i) => {
+        const tieneBloques = (p.fili.length || p.cierres.length || p.tips.length);
+        if (!tieneBloques) return String(p.base || '').trimEnd();
+        return textoConBloques(p, i === lastBlockIdx);
+      });
     }
   
   // -----------------------------
@@ -1616,22 +1767,11 @@ function pintarTextoConBloques(nodoTexto, textoPagina) {
     document.body.appendChild(hojaMuestra);
     await esperarImagenesCargadas(hojaMuestra);
 
-    // Paginación robusta por overflow real (si el texto excede, genera hojas adicionales)
+    // 1) Paginación del texto base
     let paginas = paginarTextoPorOverflow(datos.texto, hojaMuestra);
 
-    // Añadir bloque final (TIPs y/o filiaciones) a la última página si cabe.
-    // Si no cabe, se envía a una hoja nueva para evitar cortes.
-    const sufijo = construirSufijoBloquesFinales(datos.tips, datos.filiaciones, datos.cierres);
-    if (sufijo) {
-      const idxUlt = Math.max(0, paginas.length - 1);
-      const propuesta = (paginas[idxUlt] || '').trimEnd() + sufijo;
-
-      if (paginaCabeEnHoja(hojaMuestra, propuesta, idxUlt)) {
-        paginas[idxUlt] = propuesta;
-      } else {
-        paginas.push(sufijo.trimStart());
-      }
-    }
+    // 2) Repartir FILIACIONES/CIERRES/TIPS en las páginas (ya NO como bloque indivisible)
+    paginas = repartirBloquesFinalesEnPaginas(paginas, hojaMuestra, datos);
 
     hojaMuestra.remove();
 
